@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+<id>mk.popravi.mobile</id>
+<name>PopraviMK</name>
+<version>1.0</version>
+<publisher>Dalibor Nasevic</publisher>
+<url>http://dalibornasevic.com</url>
+<description>PopraviMK allows people to help in detecting problems they have found on public area in Macedonia</description>
+<copyright>2010 by Dalibor Nasevic</copyright>
+<icon>appicon.png</icon>
+<persistent-wifi>false</persistent-wifi>
+<prerendered-icon>false</prerendered-icon>
+<statusbar-style>default</statusbar-style>
+<statusbar-hidden>false</statusbar-hidden>
+<fullscreen>false</fullscreen>
+<navbar-hidden>false</navbar-hidden>
+<analytics>true</analytics>
+<guid>e5e230d4-dd29-4daf-aa4c-9e7f353ae277</guid>
+<property name="ti.android.debug" type="bool">false</property>
+<property name="ti.android.google.map.api.key.development">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
+</ti:app>

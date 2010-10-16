@@ -1,0 +1,7 @@
+*~
+*.swp
+*.swo
+build/android/assets
+build/android/bin
+build/android/res
+build/android/src

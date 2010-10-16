@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Remove android build folder 
+rm -rf build/android/bin
+rm -rf build/android/assets
+rm -rf build/android/res
+rm -rf build/android/src
+echo 'Removed bin, assets, res and src folders!'
+
+# Remove *.swp, *.swo and *~ tmp files
+find . -type f \( -name "*.swp" -or -name "*.swo" -or -name "*~" \) -delete
+echo 'Removed *.swp, *.swo and *~ tmp files!'
