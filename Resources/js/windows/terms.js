@@ -1,6 +1,8 @@
 var win = Ti.UI.currentWindow;
 
-var aboutImage = Ti.UI.createImageView({url: '../../images/bg/bg-dark.png'});
+var aboutImage = Ti.UI.createImageView({
+  url: '../../images/bg/bg-dark.png'
+});
 win.add(aboutImage);
 
 Ti.App.addEventListener("openURL", function (e) {
@@ -17,6 +19,10 @@ var  html = "<html><body style='padding: 10px; font-size: 14px; color: #fff; fon
 "<p>Повеќе инфо на info@popravi.mk.</p>" +
 '</body></html>';
 
-var webView = Ti.UI.createWebView({top: 0, left: 0, backgroundColor: 'transparent', html: html});
+var webView = Ti.UI.createWebView({
+  top: 25, left: 0, 
+  backgroundColor: 'transparent', 
+  html: html
+});
 
 win.add(webView);

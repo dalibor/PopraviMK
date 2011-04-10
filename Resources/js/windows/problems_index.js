@@ -1,5 +1,4 @@
-Titanium.include('../helpers/config.js');
-Titanium.include('../helpers/shared.js');
+Ti.include('../p.js');
 
 var colorMenuActive = '#FFFFFF';
 var colorMenu = '#8C8C8C';
@@ -9,14 +8,14 @@ win.setBackgroundColor(windowBackgroundColor);
 
 var openMapView = function (data, options) {
   var mapWindow = Titanium.UI.createWindow({url: 'map.js', navBarHidden: true});
-  var params = merge_hash(data, options)
+  var params = P.utility.mergeHashes(data, options)
   //Titanium.UI.createAlertDialog({title: "Локација", message: JSON.stringify(params)}).show();
   mapWindow.params = params;
   mapWindow.open();
 }
 
 var prepareMapView = function (data) {
-  if (virtualDevice) {
+  if (P.config.virtualDevice) {
     openMapView(data, {myLatitude: 42.038034, myLongitude: 21.46386})
   } else {
     Titanium.Geolocation.getCurrentPosition(function (e) {
@@ -50,7 +49,7 @@ var buildProblemsTableData = function (problems) {
     var categoryLabel = Ti.UI.createLabel({color: '#AEAEB0', font: {fontSize: 14,fontWeight: 'bold'}, height: 'auto', left: 0, text: problem.category});
     contentView.add(categoryLabel);
     
-    var date = Ti.UI.createLabel({color: '#999', font: {fontSize: 13,fontWeight: 'normal'}, height: 'auto', left: 0, text: DateHelper.time_ago_in_words_with_parsing(problem.created_at+"")});
+    var date = Ti.UI.createLabel({color: '#999', font: {fontSize: 13,fontWeight: 'normal'}, height: 'auto', left: 0, text: P.time.time_ago_in_words_with_parsing(problem.created_at+"")});
     contentView.add(date);
     
     var buttonsView = Ti.UI.createView({height: 'auto', top: 5, right: 10, width: 200, height: 30});
@@ -93,7 +92,7 @@ var buildProblemsTableData = function (problems) {
  * Gets latest problems from the API
  */
 var getLatestProblems = function () {
-  getJSON(apiEndpoint + '/problems.json?type=latest', function (json) {
+  P.http.getJSON(P.config.apiEndpoint + '/problems.json?type=latest', function (json) {
     latestProblemsTable.initialized = true;
     var data = buildProblemsTableData(json);
     latestProblemsTable.setData = data;
@@ -105,8 +104,8 @@ var getLatestProblems = function () {
  * Gets nearest problems from the API
  */
 var getNearestProblems = function () {
-  if (virtualDevice) {
-    getJSON(apiEndpoint + '/problems.json?type=nearest&longitude=' + 21.46385 + "&latitude=" + 42.038033, function (json) {
+  if (P.config.virtualDevice) {
+    P.http.getJSON(P.config.apiEndpoint + '/problems.json?type=nearest&longitude=' + 21.46385 + "&latitude=" + 42.038033, function (json) {
       nearestProblemsTable.initialized = true;
       var data = buildProblemsTableData(json);
       nearestProblemsTable.setData = data;
@@ -120,7 +119,7 @@ var getNearestProblems = function () {
       } else {
         var latitude = e.coords.latitude;
         var longitude = e.coords.longitude;
-        getJSON(apiEndpoint + '/problems.json?type=nearest&longitude=' + longitude + "&latitude=" + latitude, function (json) {
+        P.http.getJSON(P.config.apiEndpoint + '/problems.json?type=nearest&longitude=' + longitude + "&latitude=" + latitude, function (json) {
           nearestProblemsTable.initialized = true;
           var data = buildProblemsTableData(json);
           nearestProblemsTable.setData = data;
@@ -135,7 +134,7 @@ var getNearestProblems = function () {
  * Gets my problems from the API
  */
 var getMyProblems = function () {
-  getJSON(apiEndpoint + '/problems.json?type=my&device_id=' + Ti.Platform.id, function (json) {
+  P.http.getJSON(P.config.apiEndpoint + '/problems.json?type=my&device_id=' + Ti.Platform.id, function (json) {
     myProblemsTable.initialized = true;
     var data = buildProblemsTableData(json);
     myProblemsTable.setData = data;
@@ -246,4 +245,4 @@ win.add(latestProblemsTable);
 
 getNearestProblems();
 
-buildDownMenu();
+P.UI.buildMenu();

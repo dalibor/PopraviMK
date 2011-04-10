@@ -1,7 +1,6 @@
-Titanium.include('../helpers/config.js');
-Titanium.include('../helpers/shared.js');
+Ti.include('../p.js');
 
-checkRequirements();
+P.UI.requirements();
 
 var windowBackgroundColor = '#3F3F3F';
 var win = Titanium.UI.currentWindow;
@@ -301,7 +300,7 @@ var clearAllValues = function () {
  * Shows success after report was submited
  */
 var showSuccess = function () {
-  hideIndicator(androidActivityIndicator);
+  androidActivityIndicator.hide();
    
   Ti.UI.createAlertDialog({title: 'Успешно пријавување!', message: 'Проблемот е успешно пријавен. Ви благодариме!'}).show();
   clearAllValues();
@@ -311,7 +310,7 @@ var showSuccess = function () {
  * Shows errors after report was submited
  */
 var showError = function (json) {
-  hideIndicator(androidActivityIndicator);
+  androidActivityIndicator.hide();
   
   var message;
   if (json.type === "photo") {
@@ -327,7 +326,7 @@ var showError = function (json) {
 }
 
 var xhrOnError = function () {
-  hideIndicator(androidActivityIndicator);
+  androidActivityIndicator.hide();
   Ti.UI.createAlertDialog({title: 'Неуспешно праќање', message: 'Се јавија проблеми при испраќање. Ве молиме обидете се повторно.'}).show();
 };
 
@@ -355,11 +354,11 @@ var handleErrorActions = function (actions) {
         var count = 0;
   
         var syncFlash = function () {
-          flash("Успешно се синхронизирани категориите и општините со серверот.");
+          P.UI.flash("Успешно се синхронизирани категориите и општините со серверот.");
         }
         
         if (categorySync) {
-          syncCategories(function () {
+          P.http.syncCategories(function () {
             categoryWebView.html = drawCategoryHtml(); // change category HTML view
             count += 1;
             if (count === messageSync.length) {
@@ -369,7 +368,7 @@ var handleErrorActions = function (actions) {
         }
         
         if (municipalitySync) {
-          syncMunicipalities(function () {
+          P.http.syncMunicipalities(function () {
             municipalityWebView.html = drawMunicipalityHtml(); // change municipality HTML view
           });
           count += 1;
@@ -414,17 +413,17 @@ Ti.App.addEventListener('submit_form', function (options) {
           showSuccess();
         }
       } else {
-        hideIndicator(androidActivityIndicator);
+        androidActivityIndicator.hide();
         handleErrorActions(problem.actions);
         //Ti.UI.createAlertDialog({title: 'Грешка при валидација', message: problem.message}).show();
       }
     } else {
-      hideIndicator(androidActivityIndicator);
+      androidActivityIndicator.hide();
       Ti.UI.createAlertDialog({title: 'Грешка при пријавување', message: 'Се појави проблем при пријавување на проблемот. Ве молиме обидете се повторно.'}).show();
     }
   };
   
-  xhr.open('POST', apiEndpoint + '/problems');
+  xhr.open('POST', P.config.apiEndpoint + '/problems');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
   xhr.send(jsonData);
@@ -452,7 +451,7 @@ Ti.App.addEventListener('upload_picture', function (options) {
   
   var data = {"_method": "PUT", "photo": currentMedia, device_id: Ti.Platform.id};
   
-  xhr.open('PUT', apiEndpoint + '/problems/' + options.problem_id);
+  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + options.problem_id);
   xhr.send(data);
 });
 
@@ -467,14 +466,14 @@ function submitReport() {
     androidActivityIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам'});
     androidActivityIndicator.show();
     
-    if (virtualDevice) {
+    if (P.config.virtualDevice) {
       // for virtual device
       Ti.App.fireEvent('submit_form', { latitude: 0, longitude: 0 }); // submit event without real latitude and longitude
     } else {
       // for physical device
       Titanium.Geolocation.getCurrentPosition(function (e) {
         if (e.error) {
-          hideIndicator(androidActivityIndicator);
+          androidActivityIndicator.hide();
           Titanium.UI.createAlertDialog({title: "Локација", message: "Се појави проблем при детектирање на локација. Ве молиме обидете се повторно."}).show();
         } else {
           Ti.App.fireEvent('submit_form', { latitude: e.coords.latitude, longitude: e.coords.longitude });
@@ -484,4 +483,4 @@ function submitReport() {
   }
 }
 
-buildDownMenu();
+P.UI.buildMenu();

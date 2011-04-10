@@ -1,80 +1,137 @@
-Titanium.include('../helpers/shared.js');
+Ti.include('../p.js');
 
-var windowBackgroundColor = '#3F3F3F';
 var win = Titanium.UI.currentWindow;
-win.setBackgroundColor(windowBackgroundColor);
+win.setBackgroundColor('#3F3F3F');
 
-var header = Ti.UI.createView({height: 30, top: 0, left: 0});
+var getRowData = function (object, i) {
+  var row = Titanium.UI.createTableViewRow({
+    bottom: 5,
+    height: 'auto',
+    leftImage: object.profile_image_url,
+    layout: "vertical"
+  });
 
-var latestNews = Titanium.UI.createLabel({text: 'Последни новости за PopraviMK', color: "#FFF", font: {fontSize: 14}, left: 5, top: 5, height: 20, width: 250 });
-header.add(latestNews);
+  var screenNameLabel = Ti.UI.createLabel({
+    left: 57, 
+    height: 20, 
+    text: object.screen_name,
+    color: '#FFF',
+    font: {fontSize: 15, fontWeight: 'bold'}
+  });
 
-var refreshImageView = Titanium.UI.createImageView({url: '../../images/icons/refresh.png', width: 16, height: 16, top: 8, right: 10});
-refreshImageView.addEventListener("click", function (e) {
-  refreshTweets();
-});
-header.add(refreshImageView);
-
-win.add(header);
-
-var getTweetsData = function (tweets) {
-  var rowData = [];
+  var commentLabel = Ti.UI.createLabel({
+    top: 5, left: 57, right: 5,
+    color: '#AEAEB0',
+    font: {fontSize: 14, fontWeight: 'normal'},
+    text: object.text
+  });
   
-  for (var i = 0; i < tweets.length; i++) {
-    var tweet = tweets[i];
-    
-    var row = Titanium.UI.createTableViewRow({height: 'auto'});
-    var post_view = Titanium.UI.createView({height: 'auto', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "#1B1C1E"});
-    
-    var photo = Titanium.UI.createImageView({url: tweet.profile_image_url, top: 4, left: 4, width: 48, height: 48});
-    post_view.add(photo);
+  var dateLabel = Ti.UI.createLabel({
+    top: 5, left: 57, 
+    height: 20, 
+    color: '#999', 
+    font: {fontSize: 13, fontWeight: 'normal'}, 
+    text: P.time.time_ago_in_words_with_parsing(object.created_at + "")
+  });
 
-    var contentView = Ti.UI.createView({height: 'auto', layout: 'vertical', top: 0, left: 57});
+  row.add(screenNameLabel);
+  row.add(commentLabel);
+  row.add(dateLabel);
 
-    var screen_name = Ti.UI.createLabel({color: '#FFF', font: {fontSize: 15,fontWeight: 'bold'}, height: 'auto', left: 0, text: tweet.from_user});
-    contentView.add(screen_name);
-
-    var comment = Ti.UI.createLabel({color: '#AEAEB0', font: {fontSize: 14,fontWeight: 'normal'}, height: 'auto', left: 0, right: 5, text: tweet.text});
-    contentView.add(comment);
-    
-    var dateView = Ti.UI.createView({height: 'auto', top: 5, left:0, width: '230', height: 25});
-    var date = Ti.UI.createLabel({color: '#999', font: {fontSize: 13,fontWeight: 'normal'}, height: 'auto', left: 0, text: DateHelper.time_ago_in_words_with_parsing(tweet.created_at+"")});
-    dateView.add(date)
-    contentView.add(dateView);
-    
-    post_view.add(contentView)
-    row.add(post_view);
-
-    row.className = "item"+i;
-
-    rowData[i] = row;
-  }
-  
-  return rowData
+  row.className = "item"
+  //row.className = "item" + i; // hack
+  return row;
 }
 
-var refreshTweets = function () {
-  tweetsTable.setData = [];
-  tweetsTable.data = [];
-  no_news.hide();
-  getJSON('http://search.twitter.com/search.json?q=popravimk', function (json) {
-    if (json && json.results && json.results.length) {
-      var data = getTweetsData(json.results);
+var getProfileTweets = function (tweetsTable) {
+  var url = 'http://twitter.com/statuses/user_timeline/PopraviMK.json';
+  P.http.getJSON(url, function (json) {
+    if (json && json.length) {
+      no_news.hide();
+
+      var data = [];
+      for (var i = 0; i < json.length; i++) {
+        var tweet = json[i];
+        data[i] = getRowData({
+          profile_image_url: tweet.user.profile_image_url,
+          screen_name: tweet.user.screen_name,
+          text: tweet.text,
+          created_at: tweet.created_at
+        });
+      }
+      
       tweetsTable.setData = data;
       tweetsTable.data = data;
-    } else {
-      no_news.show()
     }
   }); 
 }
 
-var tweetsTable = Titanium.UI.createTableView({data: [], top: 30});
+var getSearchTweets = function (tweetsTable) {
+  tweetsTable.setData = [];
+  tweetsTable.data = [];
+  var url = 'http://search.twitter.com/search.json?q=popravimk';
+  P.http.getJSON(url, function (json) {
+    if (json && json.results && json.results.length) {
+      no_news.hide();
+
+      var data = [];
+      for (var i = 0; i < json.results.length; i++) {
+        var tweet = json.results[i];
+        data[i] = getRowData({
+          profile_image_url: tweet.profile_image_url,
+          screen_name: tweet.from_user,
+          text: tweet.text,
+          created_at: tweet.created_at
+        });
+      }
+
+      tweetsTable.setData = data;
+      tweetsTable.data = data;
+    } else {
+      getProfileTweets(tweetsTable); // get only tweets from profile
+    }
+  }); 
+}
+
+var tweetsTable = Titanium.UI.createTableView({
+  top: 30,
+  data: []
+});
 win.add(tweetsTable);
 
-var no_news = Ti.UI.createLabel({color: '#AEAEB0', font: {fontSize: 14, fontWeight: 'normal'}, text: "Нема новости", visible: false});
+var no_news = Ti.UI.createLabel({
+  text: "Нема новости",
+  color: '#AEAEB0',
+  font: {fontSize: 14, fontWeight: 'normal'},
+  visible: false
+});
 win.add(no_news);
 
 
-refreshTweets()
+var header = Ti.UI.createView({
+  top: 0, left: 0,
+  height: 30
+});
+var latestNews = Titanium.UI.createLabel({
+  top: 5, left: 5,
+  height: 20, width: 250,
+  text: 'Последни новости за PopraviMK',
+  color: "#FFF",
+  font: {fontSize: 14}
+});
+header.add(latestNews);
 
-buildDownMenu();
+var refreshImageView = Titanium.UI.createImageView({
+  top: 8, right: 10,
+  width: 16, height: 16,
+  url: '../../images/icons/refresh.png'
+});
+refreshImageView.addEventListener("click", function (e) {
+  getSearchTweets(tweetsTable);
+});
+header.add(refreshImageView);
+win.add(header);
+
+getSearchTweets(tweetsTable)
+
+P.UI.buildMenu();

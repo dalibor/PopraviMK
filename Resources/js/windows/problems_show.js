@@ -1,4 +1,4 @@
-Titanium.include('../helpers/shared.js');
+Ti.include('../p.js');
 
 var win = Titanium.UI.currentWindow;
 var scrollView = Ti.UI.createScrollView({top: 0, contentWidth: "auto", contentHeight: "auto", showVerticalScrollIndicator: true});
