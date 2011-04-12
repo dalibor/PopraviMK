@@ -5,6 +5,7 @@ rm -rf build/android/bin
 rm -rf build/android/assets
 rm -rf build/android/res
 rm -rf build/android/src
+rm -rf build/android/*.log
 echo 'Removed bin, assets, res and src folders!'
 
 # Remove *.swp, *.swo and *~ tmp files

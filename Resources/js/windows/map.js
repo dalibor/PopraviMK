@@ -12,23 +12,23 @@ var problemLocationAnnotation = Ti.Map.createAnnotation({
   //pincolor: Ti.Map.ANNOTATION_RED,
   pinImage: "../../images/map/marker-red.png",
   animate: true,
-  url: win.params.url   
+  url: win.params.url
 });
 
 var myLocationAnnotation = Ti.Map.createAnnotation({
-  title: "Моја локација", 
-  pinImage: "../../images/map/marker-green.png", 
-  latitude: win.params.myLatitude, 
-  longitude: win.params.myLongitude, 
+  title: "Моја локација",
+  pinImage: "../../images/map/marker-green.png",
+  latitude: win.params.myLatitude,
+  longitude: win.params.myLongitude,
   animate: true
 });
 
 var mapview = Ti.Map.createView({
-  mapType: Ti.Map.SATELLITE_TYPE, 
-  animate: true, 
-  location: {}, 
-  regionFit: true, 
-  annotations: [myLocationAnnotation, problemLocationAnnotation], 
+  mapType: Ti.Map.SATELLITE_TYPE,
+  animate: true,
+  location: {},
+  regionFit: true,
+  annotations: [myLocationAnnotation, problemLocationAnnotation],
   userLocation: true
 });
 mapview.addEventListener('click', function (e) {
@@ -39,9 +39,9 @@ mapview.addEventListener('click', function (e) {
 win.add(mapview);
 
 mapview.location = {
-  latitude: win.params.latitude, 
-  longitude: win.params.longitude, 
-  latitudeDelta: 0.02, 
+  latitude: win.params.latitude,
+  longitude: win.params.longitude,
+  latitudeDelta: 0.02,
   longitudeDelta: 0.02
 }
 
@@ -62,7 +62,7 @@ if (Ti.Platform.name == "android") {
         longitudeDelta: 0.02
       };
     });
-    
+
     var problemLocationItem = menu.add({title: 'Проблем лок.'});
     problemLocationItem.addEventListener('click', function () {
       mapview.location = {}; // hack to notice change on the location in the next step
@@ -73,11 +73,11 @@ if (Ti.Platform.name == "android") {
         longitudeDelta: 0.02
       };
     });
-    
+
     var openRouteItem = menu.add({title: 'Насоки'});
     openRouteItem.addEventListener('click', function () {
-      var url = "http://maps.google.com/maps?saddr=" + 
-                win.params.myLatitude + "," + win.params.myLongitude + 
+      var url = "http://maps.google.com/maps?saddr=" +
+                win.params.myLatitude + "," + win.params.myLongitude +
                 "&daddr=" + win.params.latitude + "," + win.params.longitude;
       Ti.Platform.openURL(url);
     });
