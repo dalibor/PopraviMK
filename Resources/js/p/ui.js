@@ -289,3 +289,61 @@ P.UI.getTwitterDataRow = function (object, i) {
   //row.className = "item" + i; // hack
   return row;
 };
+
+P.UI.createColorPicker = function (elements, top, left) {
+  var picker = Titanium.UI.createPicker({top: top, left: left});
+  var data = [];
+
+  for (var i = 0; i < elements.length; i++) {
+    data[i] = Titanium.UI.createPickerRow({
+      title: elements[i].title, 
+      id: elements[i].id
+    });
+  }
+
+  picker.add(data);
+
+  return picker;
+};
+
+P.UI.connectionError = function () {
+  Titanium.UI.createAlertDialog({
+    title: "Интернет конекција", 
+    message: "Не е пронајдена интернет конекција. Ве молиме проверете дали уредот е врзан на интернет."
+  }).show();
+};
+
+P.UI.fieldsError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Недостасуваат податоци', 
+    message: 'Ве молиме внесете опис за проблемот.'
+  }).show();
+};
+
+P.UI.cameraError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Проблем со камера', 
+    message: 'Уредот или нема камера или се појави проблем при зачувување на сликата.'
+  }).show();
+};
+
+P.UI.locationError = function () {
+  Titanium.UI.createAlertDialog({
+    title: "Локација", 
+    message: "Се појави проблем при детектирање на локација. Ве молиме обидете се повторно."
+  }).show();
+};
+
+P.UI.generalError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Грешка при пријавување', 
+    message: 'Се појави проблем при пријавување на проблемот. Ве молиме обидете се повторно.'
+  }).show();
+};
+
+P.UI.xhrError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Неуспешно праќање', 
+    message: 'Се јавија проблеми при испраќање. Ве молиме обидете се повторно.'
+  }).show();
+};

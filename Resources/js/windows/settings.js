@@ -137,25 +137,11 @@ var syncButton = Ti.UI.createButton({
   color: "#FFFFFF"
 });
 syncButton.addEventListener("click", function (e) {
-  var count = 0;
-  
-  var syncFlash = function () {
+  var callback = function () {
     P.UI.flash("Успешно се синхронизирани категориите и општините со серверот.");
-  }
-  
-  P.http.syncCategories(function () {
-    count += 1;
-    if (count === 2) {
-      syncFlash();
-    }
-  });
+  };
 
-  P.http.syncMunicipalities(function () {
-    count += 1;
-    if (count === 2) {
-      syncFlash();
-    }
-  });
+  P.http.sync(callback);
 });
 
 syncView.add(syncButton);

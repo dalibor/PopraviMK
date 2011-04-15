@@ -9,14 +9,7 @@ P.http.syncCategories = function (callback) {
   var url = P.config.apiEndpoint + '/categories.json';
   P.http.getJSON(url, function (categories) {
     if (categories.length) {
-      db.execute('DELETE FROM categories;') // remove old categories
-
-      // insert new categories
-      for (var i = 0; i < categories.length; i++) {
-        var category = categories[i];
-        db.execute('INSERT INTO "categories" ("web_id", "name") VALUES (' + category.id + ',"' + category.name + '");');
-      };
-
+      P.db.saveCategories(categories);
       callback();
     }
   });
@@ -31,18 +24,29 @@ P.http.syncMunicipalities = function (callback) {
   var url = P.config.apiEndpoint + '/municipalities.json';
   P.http.getJSON(url, function (municipalities) {
     if (municipalities.length) {
-      db.execute('DELETE FROM municipalities;') // remove old municipalities
-
-      // insert new municipalities
-      for (var i = 0; i < municipalities.length; i++) {
-        var municipality = municipalities[i];
-        db.execute('INSERT INTO "municipalities" ("web_id", "name") VALUES (' + municipality.id + ',"' + municipality.name + '");');
-      }
-
+      P.db.saveMunicipalities(municipalities);
       callback();
     }
   });
-}
+};
+
+P.http.sync = function (callback) {
+  var count = 0;
+  
+  P.http.syncCategories(function () {
+    count += 1;
+    if (count === 2) {
+      callback();
+    }
+  });
+
+  P.http.syncMunicipalities(function () {
+    count += 1;
+    if (count === 2) {
+      callback();
+    }
+  });
+};
 
 P.http.getJSON = function (url, callback) {
   if (Ti.Network.online == false) {
@@ -167,4 +171,86 @@ P.http.showSearchTweets = function (tweetsTable, noNewsLabel) {
       P.http.showProfileTweets(tweetsTable, noNewsLabel); // get only tweets from profile
     }
   });
+};
+
+
+P.http.createProblem = function (params, successCallback, errorCallback, errorHandler) {
+  if (params.latitude == null) { params.latitude = 0.0; }
+  if (params.longitude == null) { params.longitude = 0.0; }
+
+  // in previous Titanium versions this was real id of the mobile device, and now
+  // it's is a random number used to allow the device to upload photo in a new request
+  var device_id = String(Math.floor(Math.random() * 123456789));
+
+  var jsonData = JSON.stringify({problem: {
+    description: params.description,
+    weight: params.weight,
+    category_id: params.category_id,
+    municipality_id: params.municipality_id,
+    latitude: params.latitude,
+    longitude: params.longitude,
+    email: Titanium.App.Properties.getString("email"),
+    device_id: device_id
+  }});
+
+  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам податоци'});
+  uploadIndicator.show();
+
+  var xhr = Titanium.Network.createHTTPClient();
+  xhr.onerror = P.UI.xhrError;
+
+  xhr.onload = function () {
+    if (this.status == 200) {
+      uploadIndicator.hide();
+      var problem = JSON.parse(this.responseText);
+
+      if (problem.status === "ok") {
+        if (problem.id && params.image) {
+          P.http.uploadPhoto(problem.id, device_id, params.image, successCallback, errorCallback);
+        } else {
+          successCallback();
+        }
+      } else {
+        errorHandler(problem.actions);
+      }
+    } else {
+      P.UI.generalError();
+    }
+  };
+
+  xhr.open('POST', P.config.apiEndpoint + '/problems');
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Accept', 'application/json');
+  xhr.send(jsonData);
+};
+
+
+P.http.uploadPhoto = function (problem_id, device_id, image, successCallback, errorCallback) {
+  if (problem_id == null) {
+    P.UI.xhrError();
+    return;
+  }
+
+  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам слика'});
+  uploadIndicator.show();
+
+  var xhr = Titanium.Network.createHTTPClient();
+  xhr.onerror = P.UI.xhrError;
+  xhr.setTimeout(20000);
+
+  xhr.onload = function () {
+    var json = JSON.parse(this.responseText);
+    uploadIndicator.hide();
+
+    if (json.status === "ok") {
+      successCallback();
+    } else {
+      errorCallback(json);
+    }
+  };
+
+  var data = {"_method": "PUT", "photo": image, device_id: device_id};
+
+  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '.json');
+  xhr.send(data);
 };
