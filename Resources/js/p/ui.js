@@ -43,6 +43,7 @@ P.UI.createOptionsMenu = function () {
   if (Ti.Platform.name == "android") {
 
     var activity = Ti.Android.currentActivity;
+    var LOGIN = 1, LOGOUT = 2;
 
     activity.onCreateOptionsMenu = function (e) {
       var menu = e.menu;
@@ -76,6 +77,33 @@ P.UI.createOptionsMenu = function () {
           modal: true
         }).open();
       });
+
+      // login menu item
+      var loginMenuItem = menu.add({title: 'Најава', itemId: LOGIN});
+      //loginMenuItem.setIcon("login.png"); // TODO: make icon
+      loginMenuItem.addEventListener('click', function () {
+        Ti.UI.createWindow({
+          title: 'Најави се',
+          url: '../windows/login.js',
+          modal: true
+        }).open();
+      });
+
+      // logout menu item
+      var logoutMenuItem = menu.add({title: 'Одјава', itemId: LOGOUT});
+      //logoutMenuItem.setIcon("logout.png"); // TODO: make icon
+      logoutMenuItem.addEventListener('click', function () {
+        Ti.App.Properties.setString('cookie', '');
+      });
+    };
+
+    activity.onPrepareOptionsMenu = function (e) {
+      var menu = e.menu;
+      var cookie = Ti.App.Properties.getString("cookie");
+      var loggedIn = cookie !== null && cookie !== '';
+
+      menu.findItem(LOGIN).setVisible(!loggedIn);
+      menu.findItem(LOGOUT).setVisible(loggedIn);
     };
   };
 };
@@ -338,6 +366,13 @@ P.UI.generalError = function () {
   Ti.UI.createAlertDialog({
     title: 'Грешка при пријавување', 
     message: 'Се појави проблем при пријавување на проблемот. Ве молиме обидете се повторно.'
+  }).show();
+};
+
+P.UI.loginError = function (message) {
+  Ti.UI.createAlertDialog({
+    title: 'Проблем со најавување', 
+    message: message
   }).show();
 };
 

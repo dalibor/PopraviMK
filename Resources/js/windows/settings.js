@@ -1,7 +1,6 @@
 Ti.include('../p.js');
 
 var win = Ti.UI.currentWindow;
-var db = Ti.Database.install('../../db/popravi.sqlite', 'popravi');
 
 var scrollView = Ti.UI.createScrollView({
   top: 25, 
@@ -22,7 +21,7 @@ var emailTitleLabel = Ti.UI.createLabel({
   width: 300, height: 30, 
   color: '#fff', 
   font: {fontSize: 18, fontWeight: 'bold'}, 
-  text: "Електронска пошта"
+  text: "Email"
 });
 emailView.add(emailTitleLabel);
 
@@ -45,7 +44,7 @@ var emailField = Ti.UI.createTextField({
   keyboardType: Ti.UI.KEYBOARD_EMAIL, 
   returnKeyType: Ti.UI.RETURNKEY_DEFAULT, 
   borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED //passwordMask: true
-});   
+});
 emailField.addEventListener('return', function () {
   emailField.blur();
 });
@@ -90,11 +89,11 @@ saveButton.addEventListener("click", function (e) {
   if (reg.test(emailVal) === true) {
     Ti.App.Properties.setString("anonymous", "");
     Ti.App.Properties.setString("email", emailVal);
-    P.UI.flash("Успешно е поставено да пријавувате проблеми со ваша електронска пошта.");
+    P.UI.flash("Успешно е поставено да пријавувате проблеми со email адреса.");
   } else {
     Ti.UI.createAlertDialog({
-      title: 'Невалидна адреса', 
-      message: 'Форматот на внесената адреса не е валиден.'
+      title: 'Невалидна email адреса', 
+      message: 'Форматот на внесената email адреса не е валиден.'
     }).show();
   }
 });
