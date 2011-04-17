@@ -3,10 +3,34 @@ Ti.include('../p.js');
 var colorMenuActive = '#FFFFFF';
 var colorMenu = '#8C8C8C';
 var windowBackgroundColor = '#3F3F3F';
-
-
 var win = Titanium.UI.currentWindow;
 win.setBackgroundColor(windowBackgroundColor);
+
+
+var showNearestProblemsTable = function () {
+  P.http.getNearestProblems(function (problems) {
+    nearestProblemsTable.setData(P.UI.buildProblemsTableData(problems));
+    nearestProblemsTable.initialized = true;
+  });
+};
+var showLatestProblemsTable = function () {
+  P.http.getLatestProblems(function (problems) {
+    latestProblemsTable.setData(P.UI.buildProblemsTableData(problems));
+    latestProblemsTable.initialized = true;
+  });
+};
+var showMyProblemsTable = function () {
+
+  if (!P.user.email()) {
+    P.UI.noEmail();
+  } else {
+    P.http.getMyProblems(function (problems) {
+      myProblemsTable.setData(P.UI.buildProblemsTableData(problems));
+      myProblemsTable.initialized = true;
+    });
+  }
+};
+
 
 
 // BODY BEGIN
@@ -14,7 +38,7 @@ var nearestProblemsTable = Titanium.UI.createTableView({
   top: 30,
   data: [],
   backgroundColor: windowBackgroundColor,
-  visible: true,
+  visible: false,
   initialized: false
 });
 win.add(nearestProblemsTable);
@@ -45,8 +69,17 @@ var header = Ti.UI.createView({
   height: 30
 });
 
-var nearestProblemsLabel = Titanium.UI.createLabel({
+var latestProblemsLabel = Titanium.UI.createLabel({
   left: 5, top: 5,
+  height: 20, width: 80,
+  text: 'ПОСЛЕДНИ',
+  textAlign: 'center',
+  color: colorMenu,
+  font: {fontSize: 14}
+});
+header.add(latestProblemsLabel);
+var nearestProblemsLabel = Titanium.UI.createLabel({
+  left: 120, top: 5,
   height: 20, width: 80,
   text: 'НАЈБЛИСКИ',
   textAlign: 'center',
@@ -55,7 +88,7 @@ var nearestProblemsLabel = Titanium.UI.createLabel({
 });
 header.add(nearestProblemsLabel);
 var myProblemsLabel = Titanium.UI.createLabel({
-  left: 90, top: 5,
+  left: 210, top: 5,
   height: 20, width: 80,
   text: 'МОИ',
   textAlign: 'center',
@@ -63,15 +96,6 @@ var myProblemsLabel = Titanium.UI.createLabel({
   font: {fontSize: 14}
 });
 header.add(myProblemsLabel);
-var latestProblemsLabel = Titanium.UI.createLabel({
-  left: 175, top: 5,
-  height: 20, width: 80,
-  text: 'ПОСЛЕДНИ',
-  textAlign: 'center',
-  color: colorMenu,
-  font: {fontSize: 14}
-});
-header.add(latestProblemsLabel);
 var refreshImageView = Titanium.UI.createImageView({
   top: 8, right: 10,
   width: 16, height: 16,
@@ -89,7 +113,7 @@ nearestProblemsLabel.addEventListener("click", function (e) {
   latestProblemsLabel.color = colorMenu;
 
   if (!nearestProblemsTable.initialized) {
-    P.http.showNearestProblems(nearestProblemsTable)
+    showNearestProblemsTable();
   }
 });
 myProblemsLabel.addEventListener("click", function (e) {
@@ -101,7 +125,7 @@ myProblemsLabel.addEventListener("click", function (e) {
   latestProblemsLabel.color = colorMenu;
 
   if (!myProblemsTable.initialized) {
-    P.http.showMyProblems(myProblemsTable);
+    showMyProblemsTable();
   }
 });
 latestProblemsLabel.addEventListener("click", function (e) {
@@ -113,22 +137,21 @@ latestProblemsLabel.addEventListener("click", function (e) {
   latestProblemsLabel.color = colorMenuActive;
 
   if (!latestProblemsTable.initialized) {
-    P.http.showLatestProblems(latestProblemsTable);
+    showLatestProblemsTable();
   }
 });
 refreshImageView.addEventListener("click", function (e) {
   if (latestProblemsTable.visible) {
-    P.http.showLatestProblems(latestProblemsTable);
+    showLatestProblemsTable();
   } else if (nearestProblemsTable.visible) {
-    P.http.showNearestProblems(nearestProblemsTable);
+    showNearestProblemsTable();
   } else if (myProblemsTable.visible) {
-    P.http.showMyProblems(myProblemsTable);
+    showMyProblemsTable();
   }
 });
 
 win.add(header);
 // HEADER END
 
-
-P.http.showNearestProblems(nearestProblemsTable);
+latestProblemsLabel.fireEvent("click");
 P.UI.createOptionsMenu();

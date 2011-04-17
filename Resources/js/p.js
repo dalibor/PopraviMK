@@ -6,3 +6,4 @@ Ti.include('p/time.js');
 Ti.include('p/ui.js'); // must be before http.js
 Ti.include('p/http.js');
 Ti.include('p/db.js');
+Ti.include('p/user.js');

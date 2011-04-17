@@ -6,7 +6,7 @@ var problemLocationAnnotation = Ti.Map.createAnnotation({
   latitude: win.params.latitude,
   longitude: win.params.longitude,
   title: win.params.title,
-  subtitle: win.params.subtitle,
+  subtitle: win.params.description,
   leftButton: win.params.photo,
   //rightButton: win.params.photo,
   //pincolor: Ti.Map.ANNOTATION_RED,

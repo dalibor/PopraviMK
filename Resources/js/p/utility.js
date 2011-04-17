@@ -9,3 +9,4 @@ P.utility.mergeHashes = function (destination, source) {
   return destination;
 };
 
+P.utility.emailRegExp = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;

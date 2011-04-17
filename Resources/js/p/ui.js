@@ -82,11 +82,7 @@ P.UI.createOptionsMenu = function () {
       var loginMenuItem = menu.add({title: 'Најава', itemId: LOGIN});
       //loginMenuItem.setIcon("login.png"); // TODO: make icon
       loginMenuItem.addEventListener('click', function () {
-        Ti.UI.createWindow({
-          title: 'Најави се',
-          url: '../windows/login.js',
-          modal: true
-        }).open();
+        P.UI.openLoginWindow();
       });
 
       // logout menu item
@@ -99,8 +95,7 @@ P.UI.createOptionsMenu = function () {
 
     activity.onPrepareOptionsMenu = function (e) {
       var menu = e.menu;
-      var cookie = Ti.App.Properties.getString("cookie");
-      var loggedIn = cookie !== null && cookie !== '';
+      var loggedIn = P.user.loggedIn();
 
       menu.findItem(LOGIN).setVisible(!loggedIn);
       menu.findItem(LOGOUT).setVisible(loggedIn);
@@ -124,13 +119,6 @@ P.UI.requirements = function () {
       title: 'Информација',
       message: 'За користење на PopraviMK потребно е да вклучите: ' + errors.join(', ')
     }).show();
-  }
-
-  if (!Ti.App.Properties.getString("email") && !Ti.App.Properties.getString("anonymous")) {
-    Ti.UI.createWindow({
-      title: 'Поставки',
-      url: '../windows/welcome.js'
-    }).open();
   }
 };
 
@@ -222,7 +210,8 @@ P.UI.buildProblemsTableData = function (problems) {
         longitude: problem.longitude,
         latitude: problem.latitude,
         title: problem.category + " (" + problem.municipality + ")",
-        subtitle: problem.description,
+        description: problem.description,
+        status: problem.status,
         photo: P.config.hostname + problem.photo_small
       }
     });
@@ -235,15 +224,7 @@ P.UI.buildProblemsTableData = function (problems) {
       color: '#3C3F46',
       backgroundColor: "#FEB300",
       font: {fontFamily: 'Helvetica Neue', fontSize: 15, fontWeight: 'bold'},
-      data: {
-        id: problem.id,
-        url: problem.url,
-        longitude: problem.longitude,
-        latitude: problem.latitude,
-        title: problem.category + " (" + problem.municipality + ")",
-        subtitle: problem.description,
-        photo: P.config.hostname + problem.photo_medium
-      }
+      problem: problem
     });
     buttonsView.add(showButton);
 
@@ -256,8 +237,8 @@ P.UI.buildProblemsTableData = function (problems) {
         url: 'problems_show.js',
         navBarHidden: true
       });
-      showWindow.params = e.source.data
-      showWindow.open()
+      showWindow.problem = e.source.problem;
+      showWindow.open();
     });
     // BUTTONS END
 
@@ -364,8 +345,15 @@ P.UI.locationError = function () {
 
 P.UI.generalError = function () {
   Ti.UI.createAlertDialog({
-    title: 'Грешка при пријавување', 
-    message: 'Се појави проблем при пријавување на проблемот. Ве молиме обидете се повторно.'
+    title: 'Се појави грешка', 
+    message: 'Се појави грешка ве молиме обидете се повторно.'
+  }).show();
+};
+
+P.UI.serverError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Грешна на серверот', 
+    message: 'Се појави грешка на серверот ве молиме обидете се повторно.'
   }).show();
 };
 
@@ -382,3 +370,26 @@ P.UI.xhrError = function () {
     message: 'Се јавија проблеми при испраќање. Ве молиме обидете се повторно.'
   }).show();
 };
+
+P.UI.noEmail = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Недостасува email адреса', 
+    message: 'Ве молиме поставете email адреса во Поставки за да ги листате вашите пријавени проблеми'
+  }).show();
+};
+
+P.UI.invalidEmail = function () {
+Ti.UI.createAlertDialog({
+    title: 'Невалидна email адреса', 
+    message: 'Форматот на внесената email адреса не е валиден.'
+  }).show();
+};
+
+P.UI.openLoginWindow = function () {
+  Ti.UI.createWindow({
+    title: 'Најави се',
+    url: '../windows/login.js',
+    modal: true
+  }).open();
+};
+

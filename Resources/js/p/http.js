@@ -76,22 +76,21 @@ P.http.getJSON = function (url, callback) {
   }
 };
 
-P.http.getProblems = function (url, table) {
+P.http.getProblems = function (url, callback) {
   P.http.getJSON(url, function (json) {
-    table.initialized = true;
-    table.setData(P.UI.buildProblemsTableData(json));
+    callback(json);
   });
 };
 
 /*
  * Gets nearest problems from the API
  */
-P.http.showNearestProblems = function (table) {
+P.http.getNearestProblems = function (callback) {
   if (P.config.virtualDevice) {
     // on virtual device use hard-coded the location
     var url = P.config.apiEndpoint + '/problems.json?type=nearest&' +
       'longitude=' + 21.46385 + "&latitude=" + 42.038033;
-    P.http.getProblems(url, table);
+    P.http.getProblems(url, callback);
   } else {
     Titanium.Geolocation.getCurrentPosition(function (e) {
       if (e.error) {
@@ -99,7 +98,7 @@ P.http.showNearestProblems = function (table) {
       } else {
         var url = P.config.apiEndpoint + '/problems.json?type=nearest&' +
           'longitude=' + e.coords.longitude + '&latitude=' + e.coords.latitude;
-        P.http.getProblems(url, table);
+        P.http.getProblems(url, callback);
       }
     });
   }
@@ -109,18 +108,18 @@ P.http.showNearestProblems = function (table) {
 /*
  * Gets latest problems from the API
  */
-P.http.showLatestProblems = function (table) {
+P.http.getLatestProblems = function (table) {
   var url = P.config.apiEndpoint + '/problems.json?type=latest';
-  P.http.getProblems(url, table);
+  P.http.getProblems(url, table, 'latest');
 };
 
 
 /*
  * Gets my problems from the API
  */
-P.http.showMyProblems = function (table) {
-  var url = P.config.apiEndpoint + '/problems.json?type=my&device_id=' + Ti.Platform.id;
-  P.http.getProblems(url, table);
+P.http.getMyProblems = function (table) {
+  var url = P.config.apiEndpoint + '/problems.json?type=my&email=' + P.user.email();
+  P.http.getProblems(url, table, 'my');
 };
 
 
@@ -249,8 +248,38 @@ P.http.uploadPhoto = function (problem_id, device_id, image, successCallback, er
     }
   };
 
-  var data = {"_method": "PUT", "photo": image, device_id: device_id};
+  var payload = {"_method": "PUT", "photo": image, device_id: device_id};
 
   xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '.json');
-  xhr.send(data);
+  xhr.send(payload);
+};
+
+P.http.changeProblemStatus = function (problem_id, status, 
+    successCallback, accessDeniedCallback) {
+  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Менувам статус на проблем'});
+  uploadIndicator.show();
+
+  var xhr = Titanium.Network.createHTTPClient();
+  xhr.onerror = P.UI.xhrError;
+  xhr.setTimeout(20000);
+
+  xhr.onload = function () {
+    var json = JSON.parse(this.responseText);
+    uploadIndicator.hide();
+
+    if (json.status === "ok") {
+      successCallback();
+    } else if (json.status == "access_denied") {
+      accessDeniedCallback();
+    } else if (json.status == "error") {
+      P.UI.serverError();
+    } else {
+      P.UI.generalError();
+    }
+  };
+
+  var payload = {"_method": "PUT", "status": status};
+
+  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '/update_status.json');
+  xhr.send(payload);
 };
