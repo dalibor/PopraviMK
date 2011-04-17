@@ -21,7 +21,7 @@ var showLatestProblemsTable = function () {
 };
 var showMyProblemsTable = function () {
 
-  if (!P.user.email()) {
+  if (!Titanium.App.Properties.getString("email")) {
     P.UI.noEmail();
   } else {
     P.http.getMyProblems(function (problems) {

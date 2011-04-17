@@ -57,7 +57,7 @@ var scrollView = Ti.UI.createScrollView({
 
     var loggedIn = P.user.loggedIn();
 
-    if (loggedIn) {
+    if (loggedIn && Ti.App.Properties.getString("municipality_id") === String(problem.municipality_id)) {
       var statuses = [];
       for (var i = 0; i < STATUSES.length; i++) {
         if (STATUSES[i][0] === problem.status) {

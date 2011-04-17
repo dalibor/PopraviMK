@@ -118,7 +118,8 @@ P.http.getLatestProblems = function (table) {
  * Gets my problems from the API
  */
 P.http.getMyProblems = function (table) {
-  var url = P.config.apiEndpoint + '/problems.json?type=my&email=' + P.user.email();
+  var url = P.config.apiEndpoint + '/problems.json?type=my&email=' + 
+    Titanium.App.Properties.getString("email");
   P.http.getProblems(url, table, 'my');
 };
 
@@ -179,9 +180,9 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
 
   // in previous Titanium versions this was real id of the mobile device, and now
   // it's is a random number used to allow the device to upload photo in a new request
-  var device_id = String(Math.floor(Math.random() * 123456789));
+  var token = String(Math.floor(Math.random() * 123456789));
 
-  var jsonData = JSON.stringify({problem: {
+  var payload = JSON.stringify({problem: {
     description: params.description,
     weight: params.weight,
     category_id: params.category_id,
@@ -189,7 +190,7 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
     latitude: params.latitude,
     longitude: params.longitude,
     email: Titanium.App.Properties.getString("email"),
-    device_id: device_id
+    token: token
   }});
 
   uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам податоци'});
@@ -205,7 +206,7 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
 
       if (problem.status === "ok") {
         if (problem.id && params.image) {
-          P.http.uploadPhoto(problem.id, device_id, params.image, successCallback, errorCallback);
+          P.http.uploadPhoto(problem.id, token, params.image, successCallback, errorCallback);
         } else {
           successCallback();
         }
@@ -220,11 +221,11 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
   xhr.open('POST', P.config.apiEndpoint + '/problems');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
-  xhr.send(jsonData);
+  xhr.send(payload);
 };
 
 
-P.http.uploadPhoto = function (problem_id, device_id, image, successCallback, errorCallback) {
+P.http.uploadPhoto = function (problem_id, token, image, successCallback, errorCallback) {
   if (problem_id == null) {
     P.UI.xhrError();
     return;
@@ -248,7 +249,7 @@ P.http.uploadPhoto = function (problem_id, device_id, image, successCallback, er
     }
   };
 
-  var payload = {"_method": "PUT", "photo": image, device_id: device_id};
+  var payload = {"_method": "PUT", "photo": image, token: token};
 
   xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '.json');
   xhr.send(payload);
@@ -283,3 +284,45 @@ P.http.changeProblemStatus = function (problem_id, status,
   xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '/update_status.json');
   xhr.send(payload);
 };
+
+P.http.login = function (successCallback) {
+  var payload = JSON.stringify({
+    email: emailField.value, 
+    password: passwordField.value
+  });
+
+  var xhr = Titanium.Network.createHTTPClient();
+  xhr.onerror = P.UI.xhrError;
+
+  xhr.onload = function () {
+    uploadIndicator.hide();
+
+    if (this.status == 200) {
+      var response = JSON.parse(this.responseText);
+      if (response.status === 'ok') {
+        Ti.App.Properties.setString("cookie", this.getResponseHeader('Set-Cookie'));
+        Ti.App.Properties.setString("municipality_id", response.municipality_id);
+        successCallback();
+      } else {
+        P.UI.loginError(response.message);
+      }
+    } else {
+      P.UI.generalError();
+    }
+  };
+
+  // NOTE: DEBUG
+  //Ti.App.Properties.setString("cookie", "_popravi.mk_session=BAh7ByIPc2Vzc2lvbl9pZCIlYTYzODM0MGVjZWU1ODU1NTlhOWU4MGEwMDRlNmIyNjMiDHVzZXJfaWRpVg==--5653024a8388b7561e5eee0a6d84143ab16753fd");
+
+  xhr.open('POST', P.config.apiEndpoint + '/session');
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Accept', 'application/json');
+
+  // NOTE: Titanium can't set cookie on the second request
+  // xhr.setRequestHeader('Cookie', 'something') will works the first time
+  // but after a successful response from server with a 'Set-Cookie' header,
+  // Titanium can't remove this cookie
+  xhr.setRequestHeader('Cookie', Ti.App.Properties.getString("cookie"));
+
+  xhr.send(payload);
+}

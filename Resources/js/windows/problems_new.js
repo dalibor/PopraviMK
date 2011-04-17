@@ -356,8 +356,8 @@ var errorCallback = function (json) {
   var message;
   if (json.type === "photo") {
     message = "Сликата не е во валиден формат.";
-  } else if (json.type === "device_id") {
-    message = "Не можете да додадете слика бидејќи извештајот е испратен од друг мобилен уред.";
+  } else if (json.type === "token") {
+    message = "Не можете да додадете слика бидејќи е испратен невалиден токен.";
   } else {
     message = "Се појави технички проблем при испраќање на сликата.";
   }

@@ -5,7 +5,3 @@ P.user.loggedIn = function () {
   var loggedIn = cookie !== null && cookie !== '';
   return loggedIn;
 };
-
-P.user.email = function () {
-  return Titanium.App.Properties.getString("email");
-};
