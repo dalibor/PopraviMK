@@ -9,13 +9,33 @@ var scrollView = Ti.UI.createScrollView({
   showVerticalScrollIndicator: true,
   backgroundColor: '#3F3F3F'
 });
-  var emailView = Ti.UI.createView({
+  var userView = Ti.UI.createView({
     top: 10, left: 10,
-    width: 300, height: 140,
+    width: 300, height: 210,
     backgroundColor: '#1B1C1E',
     borderRadius: 6,
     layout: 'vertical'
   });
+    var nameLabel = Ti.UI.createLabel({
+      top: 5, left: 10,
+      width: 300, height: 30,
+      color: '#fff',
+      font: {fontSize: 18, fontWeight: 'bold'},
+      text: 'Име'
+    });
+    userView.add(nameLabel);
+    var nameField = Ti.UI.createTextField({
+      top: 5, 
+      height: 35, width: 280, 
+      color: '#787878', 
+      value: Ti.App.Properties.getString('name'), 
+      hintText: 'Име', 
+      autocorrect: false,
+      returnKeyType: Ti.UI.RETURNKEY_DEFAULT, 
+      borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
+    });
+    userView.add(nameField);
+
     var emailLabel = Ti.UI.createLabel({
       top: 5, left: 10,
       width: 300, height: 30,
@@ -23,9 +43,9 @@ var scrollView = Ti.UI.createScrollView({
       font: {fontSize: 18, fontWeight: 'bold'},
       text: 'Email'
     });
-    emailView.add(emailLabel);
+    userView.add(emailLabel);
     var emailField = Ti.UI.createTextField({
-      top: 10, 
+      top: 5, 
       height: 35, width: 280, 
       color: '#787878', 
       value: Ti.App.Properties.getString('email'), 
@@ -35,7 +55,7 @@ var scrollView = Ti.UI.createScrollView({
       returnKeyType: Ti.UI.RETURNKEY_DEFAULT, 
       borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
     });
-    emailView.add(emailField);
+    userView.add(emailField);
 
   var buttonsView = Ti.UI.createView({
     top: 5, left: 25,
@@ -62,15 +82,16 @@ var scrollView = Ti.UI.createScrollView({
     });
     buttonsView.add(saveButton);
 
-  emailView.add(buttonsView);
-  scrollView.add(emailView);
+  userView.add(buttonsView);
+  scrollView.add(userView);
 
 
   var descriptionView = Ti.UI.createView({
-    top: 170, left: 10, bottom: 10,
-    width: 300, height: 145,
+    top: 240, left: 10, bottom: 10,
+    width: 300, height: 180,
     backgroundColor: '#333',
-    borderRadius: 6
+    borderRadius: 6,
+    layout: 'vertical'
   });
     var descriptionTitleLabel = Ti.UI.createLabel({
       top: 5, left: 10,
@@ -82,11 +103,11 @@ var scrollView = Ti.UI.createScrollView({
     descriptionView.add(descriptionTitleLabel);
 
     var descriptionLabel = Ti.UI.createLabel({
-      top: 35, left: 10,
-      width: 280, height: 100,
+      top: 5, left: 10,
+      width: 280,
       color: '#EEE',
       font: {fontSize: 13, fontWeight: 'normal'},
-      text: 'Проблеми може да пријавувате анонимно или со email идентификатор. Доколку оставите email и на веб апликацијата се регистрирате или сте регистрирани со истиот, ќе можете од таму да ги изменувате пријавените проблеми.'
+      text: 'Проблеми може да пријавувате анонимно или со email идентификатор. \nДоколку се идентификувате со email и на веб апликацијата се регистрирате или сте регистрирани со истиот, ќе можете од таму да ги изменувате пријавените проблеми. \nИмето се користи во приказот кај коментарите.'
     });
     descriptionView.add(descriptionLabel);
 
@@ -98,14 +119,17 @@ win.add(scrollView)
 
 // EVENTS BEGIN
 resetButton.addEventListener("click", function (e) {
+  nameField.value = "";
   emailField.value = "";
+  Ti.App.Properties.setString("name", "");
   Ti.App.Properties.setString("email", "");
   P.UI.flash("Успешно е поставено да пријавувате проблеми анонимно.");
 });
 saveButton.addEventListener("click", function (e) {
   if (P.utility.emailRegExp.test(emailField.value) === true) {
+    Ti.App.Properties.setString("name", nameField.value);
     Ti.App.Properties.setString("email", emailField.value);
-    P.UI.flash("Успешно е поставено да пријавувате проблеми со email адреса.");
+    P.UI.flash("Вашите информации се успешно запишани.");
   } else {
     P.UI.invalidEmail();
   }

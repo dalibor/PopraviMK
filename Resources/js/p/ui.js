@@ -379,9 +379,23 @@ P.UI.noEmail = function () {
 };
 
 P.UI.invalidEmail = function () {
-Ti.UI.createAlertDialog({
+  Ti.UI.createAlertDialog({
     title: 'Невалидна email адреса', 
     message: 'Форматот на внесената email адреса не е валиден.'
+  }).show();
+};
+
+P.UI.commentError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Грешка при коментирање', 
+    message: 'Се појави грешка при креирање на коментар, ве молиме обидете се повторно.'
+  }).show();
+};
+
+P.UI.emptyCommentError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Празен коментар', 
+    message: 'Ве молиме внесете коментар.'
   }).show();
 };
 
@@ -393,3 +407,41 @@ P.UI.openLoginWindow = function () {
   }).open();
 };
 
+P.UI.getCommentsRowData = function (comment) {
+  var row = Titanium.UI.createView({
+    top: 5, bottom: 0,
+    height: 'auto',
+    layout: "vertical"
+  });
+
+  var screenNameLabel = Ti.UI.createLabel({
+    left: 5,
+    height: 20,
+    text: comment.user,
+    color: '#FFF',
+    font: {fontFamily: 'Helvetica Neue', fontSize: 15, fontWeight: 'bold'}
+  });
+
+  var commentLabel = Ti.UI.createLabel({
+    top: 5, left: 5, right: 5,
+    color: '#AEAEB0',
+    font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
+    text: comment.content
+  });
+
+  var dateLabel = Ti.UI.createLabel({
+    top: 5, left: 5,
+    height: 20,
+    color: '#999',
+    font: {fontFamily: 'Helvetica Neue', fontSize: 13, fontWeight: 'normal'},
+    text: P.time.time_ago_in_words_with_parsing(comment.created_at + "")
+  });
+
+  row.add(screenNameLabel);
+  row.add(commentLabel);
+  row.add(dateLabel);
+
+  row.className = "comment";
+
+  return row;
+};

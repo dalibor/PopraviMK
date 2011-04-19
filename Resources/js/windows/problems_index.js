@@ -20,7 +20,6 @@ var showLatestProblemsTable = function () {
   });
 };
 var showMyProblemsTable = function () {
-
   if (!Titanium.App.Properties.getString("email")) {
     P.UI.noEmail();
   } else {

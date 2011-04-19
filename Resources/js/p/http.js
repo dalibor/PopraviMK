@@ -325,4 +325,50 @@ P.http.login = function (successCallback) {
   xhr.setRequestHeader('Cookie', Ti.App.Properties.getString("cookie"));
 
   xhr.send(payload);
-}
+};
+
+P.http.getComments = function (problem_id, callback) {
+  var url = P.config.apiEndpoint + '/comments.json?problem_id=' + problem_id;
+  P.http.getJSON(url, function (json) {
+    callback(json);
+  });
+};
+
+
+P.http.createComment = function (problem_id, content, successCallback) {
+  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам коментар'});
+  uploadIndicator.show();
+
+  //P.http.login(successCallback);
+
+  var payload = JSON.stringify({
+    name: Ti.App.Properties.getString("name"), 
+    email: Ti.App.Properties.getString("email"), 
+    content: content
+  });
+
+  var xhr = Titanium.Network.createHTTPClient();
+  xhr.onerror = P.UI.xhrError;
+
+  xhr.onload = function () {
+    uploadIndicator.hide();
+
+    if (this.status == 200) {
+      var response = JSON.parse(this.responseText);
+      if (response.status === 'ok') {
+        successCallback(response.comment);
+      } else {
+        P.UI.commentError();
+      }
+    } else {
+      P.UI.generalError();
+    }
+  };
+
+  xhr.open('POST', P.config.apiEndpoint + '/comments?problem_id=' + problem_id);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Accept', 'application/json');
+  xhr.setRequestHeader('Cookie', Ti.App.Properties.getString("cookie"));
+
+  xhr.send(payload);
+};
