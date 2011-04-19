@@ -165,7 +165,7 @@ var scrollView = Ti.UI.createScrollView({
 
   // comments
   var commentsLabel = Ti.UI.createLabel({
-    top: 20, left: 5,
+    top: 30, left: 5,
     text: "Коментари",
     color: '#FFF',
     font: {fontSize: 14, fontWeight: 'bold'}

@@ -14,3 +14,6 @@ P.config.virtualDevice = true
 
 // set appropriate api endpoint here
 P.config.apiEndpoint = P.config.hostname + "/api/v2";
+
+// API::V2 key for PopraviMK
+P.config.api_key = '7a52ae6e21f8fda72e466dbf4e10';

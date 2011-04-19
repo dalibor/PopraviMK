@@ -6,7 +6,7 @@ P.http = {};
  * @param {Function} callback
  */
 P.http.syncCategories = function (callback) {
-  var url = P.config.apiEndpoint + '/categories.json';
+  var url = P.config.apiEndpoint + '/categories.json?api_key=' + P.config.api_key;
   P.http.getJSON(url, function (categories) {
     if (categories.length) {
       P.db.saveCategories(categories);
@@ -21,7 +21,7 @@ P.http.syncCategories = function (callback) {
  * @param {Object} callback
  */
 P.http.syncMunicipalities = function (callback) {
-  var url = P.config.apiEndpoint + '/municipalities.json';
+  var url = P.config.apiEndpoint + '/municipalities.json?api_key=' + P.config.api_key;
   P.http.getJSON(url, function (municipalities) {
     if (municipalities.length) {
       P.db.saveMunicipalities(municipalities);
@@ -62,7 +62,14 @@ P.http.getJSON = function (url, callback) {
     xhr.onload = function () {
       indicator.hide();
       var json = JSON.parse(this.responseText);
-      callback(json);
+
+      if (json.status === 'api_key') {
+        P.UI.apiKeyError();
+      } else if (json.status === 'access_denied') {
+        P.UI.loggedInError();
+      } else {
+        callback(json);
+      }
     };
     xhr.onerror = function () {
       indicator.hide();
@@ -88,16 +95,16 @@ P.http.getProblems = function (url, callback) {
 P.http.getNearestProblems = function (callback) {
   if (P.config.virtualDevice) {
     // on virtual device use hard-coded the location
-    var url = P.config.apiEndpoint + '/problems.json?type=nearest&' +
-      'longitude=' + 21.46385 + "&latitude=" + 42.038033;
+    var url = P.config.apiEndpoint + '/problems.json?api_key=' + P.config.api_key +
+      '&type=nearest&' + 'longitude=' + 21.46385 + "&latitude=" + 42.038033;
     P.http.getProblems(url, callback);
   } else {
     Titanium.Geolocation.getCurrentPosition(function (e) {
       if (e.error) {
         P.UI.geolocationProblem();
       } else {
-        var url = P.config.apiEndpoint + '/problems.json?type=nearest&' +
-          'longitude=' + e.coords.longitude + '&latitude=' + e.coords.latitude;
+        var url = P.config.apiEndpoint + '/problems.json?api_key=' + P.config.api_key +
+        '&type=nearest&' + 'longitude=' + e.coords.longitude + '&latitude=' + e.coords.latitude;
         P.http.getProblems(url, callback);
       }
     });
@@ -109,7 +116,8 @@ P.http.getNearestProblems = function (callback) {
  * Gets latest problems from the API
  */
 P.http.getLatestProblems = function (table) {
-  var url = P.config.apiEndpoint + '/problems.json?type=latest';
+  var url = P.config.apiEndpoint + '/problems.json?api_key=' + P.config.api_key + 
+    '&type=latest';
   P.http.getProblems(url, table, 'latest');
 };
 
@@ -118,8 +126,8 @@ P.http.getLatestProblems = function (table) {
  * Gets my problems from the API
  */
 P.http.getMyProblems = function (table) {
-  var url = P.config.apiEndpoint + '/problems.json?type=my&email=' + 
-    Titanium.App.Properties.getString("email");
+  var url = P.config.apiEndpoint + '/problems.json?api_key=' + P.config.api_key +
+    '&type=my&email=' + Titanium.App.Properties.getString("email");
   P.http.getProblems(url, table, 'my');
 };
 
@@ -200,16 +208,20 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
   xhr.onerror = P.UI.xhrError;
 
   xhr.onload = function () {
-    if (this.status == 200) {
+    if (this.status === 200) {
       uploadIndicator.hide();
       var problem = JSON.parse(this.responseText);
 
-      if (problem.status === "ok") {
+      if (problem.status === 'ok') {
         if (problem.id && params.image) {
           P.http.uploadPhoto(problem.id, token, params.image, successCallback, errorCallback);
         } else {
           successCallback();
         }
+      } else if (problem.status === 'api_key') {
+        P.UI.apiKeyError();
+      } else if (problem.status === 'access_denied') {
+        P.UI.loggedInError();
       } else {
         errorHandler(problem.actions);
       }
@@ -218,7 +230,7 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
     }
   };
 
-  xhr.open('POST', P.config.apiEndpoint + '/problems');
+  xhr.open('POST', P.config.apiEndpoint + '/problems?api_key=' + P.config.api_key);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
   xhr.send(payload);
@@ -239,19 +251,24 @@ P.http.uploadPhoto = function (problem_id, token, image, successCallback, errorC
   xhr.setTimeout(20000);
 
   xhr.onload = function () {
-    var json = JSON.parse(this.responseText);
+    var response = JSON.parse(this.responseText);
     uploadIndicator.hide();
 
-    if (json.status === "ok") {
+    if (response.status === 'ok') {
       successCallback();
+    } else if (response.status === 'api_key') {
+      P.UI.apiKeyError();
+    } else if (response.status === 'access_denied') {
+      P.UI.loggedInError();
     } else {
-      errorCallback(json);
+      errorCallback(response);
     }
   };
 
   var payload = {"_method": "PUT", "photo": image, token: token};
 
-  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '.json');
+  xhr.open('PUT', P.config.apiEndpoint  + '/problems/' + problem_id + '.json' + 
+    '?api_key=' + P.config.api_key);
   xhr.send(payload);
 };
 
@@ -268,12 +285,14 @@ P.http.changeProblemStatus = function (problem_id, status,
     var json = JSON.parse(this.responseText);
     uploadIndicator.hide();
 
-    if (json.status === "ok") {
+    if (json.status === 'ok') {
       successCallback();
-    } else if (json.status == "access_denied") {
+    } else if (json.status === 'access_denied') {
       accessDeniedCallback();
-    } else if (json.status == "error") {
+    } else if (json.status === 'error') {
       P.UI.serverError();
+    } else if (json.status === 'api_key') {
+      P.UI.apiKeyError();
     } else {
       P.UI.generalError();
     }
@@ -281,7 +300,8 @@ P.http.changeProblemStatus = function (problem_id, status,
 
   var payload = {"_method": "PUT", "status": status};
 
-  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + '/update_status.json');
+  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + 
+    '/update_status.json?api_key=' + P.config.api_key);
   xhr.send(payload);
 };
 
@@ -297,12 +317,16 @@ P.http.login = function (successCallback) {
   xhr.onload = function () {
     uploadIndicator.hide();
 
-    if (this.status == 200) {
+    if (this.status === 200) {
       var response = JSON.parse(this.responseText);
       if (response.status === 'ok') {
-        Ti.App.Properties.setString("cookie", this.getResponseHeader('Set-Cookie'));
-        Ti.App.Properties.setString("municipality_id", response.municipality_id);
+        Ti.App.Properties.setString('cookie', this.getResponseHeader('Set-Cookie'));
+        Ti.App.Properties.setString('municipality_id', response.municipality_id);
         successCallback();
+      } else if (response.status === 'api_key') {
+        P.UI.apiKeyError();
+      } else if (response.status === 'access_denied') {
+        P.UI.loggedInError();
       } else {
         P.UI.loginError(response.message);
       }
@@ -314,7 +338,7 @@ P.http.login = function (successCallback) {
   // NOTE: DEBUG
   //Ti.App.Properties.setString("cookie", "_popravi.mk_session=BAh7ByIPc2Vzc2lvbl9pZCIlYTYzODM0MGVjZWU1ODU1NTlhOWU4MGEwMDRlNmIyNjMiDHVzZXJfaWRpVg==--5653024a8388b7561e5eee0a6d84143ab16753fd");
 
-  xhr.open('POST', P.config.apiEndpoint + '/session');
+  xhr.open('POST', P.config.apiEndpoint + '/session?api_key=' + P.config.api_key);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
 
@@ -328,7 +352,8 @@ P.http.login = function (successCallback) {
 };
 
 P.http.getComments = function (problem_id, callback) {
-  var url = P.config.apiEndpoint + '/comments.json?problem_id=' + problem_id;
+  var url = P.config.apiEndpoint + '/comments.json?api_key=' + P.config.api_key +
+    '&problem_id=' + problem_id;
   P.http.getJSON(url, function (json) {
     callback(json);
   });
@@ -357,6 +382,10 @@ P.http.createComment = function (problem_id, content, successCallback) {
       var response = JSON.parse(this.responseText);
       if (response.status === 'ok') {
         successCallback(response.comment);
+      } else if (response.status === 'api_key') {
+        P.UI.apiKeyError();
+      } else if (response.status === 'access_denied') {
+        P.UI.loggedInError();
       } else {
         P.UI.commentError();
       }
@@ -365,7 +394,8 @@ P.http.createComment = function (problem_id, content, successCallback) {
     }
   };
 
-  xhr.open('POST', P.config.apiEndpoint + '/comments?problem_id=' + problem_id);
+  xhr.open('POST', P.config.apiEndpoint + '/comments?api_key=' + P.config.api_key +
+    '&problem_id=' + problem_id);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
   xhr.setRequestHeader('Cookie', Ti.App.Properties.getString("cookie"));

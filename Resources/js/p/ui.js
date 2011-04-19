@@ -392,6 +392,20 @@ P.UI.commentError = function () {
   }).show();
 };
 
+P.UI.apiKeyError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Грешен API клуч', 
+    message: 'Се појави грешка при идентификација на API клучот.'
+  }).show();
+};
+
+P.UI.loggedInError = function () {
+  Ti.UI.createAlertDialog({
+    title: 'Не сте најавени', 
+    message: 'Ве молиме најавете се.'
+  }).show();
+};
+
 P.UI.emptyCommentError = function () {
   Ti.UI.createAlertDialog({
     title: 'Празен коментар', 
