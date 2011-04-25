@@ -1,39 +1,49 @@
 P.UI = {};
 
+var syncTitle = 'Синхронизирај';
+
+//P.UI.flash = function (message) {
+  //var messageWin = Ti.UI.createWindow({
+    //bottom: 70,
+    //height: 40, width: 250,
+    //borderRadius: 10,
+    //touchEnabled: false
+  //});
+
+  //var messageView = Ti.UI.createView({
+    //height: 40, width: 250,
+    //borderRadius: 10,
+    //backgroundColor: '#1B1C1E',
+    //opacity: 0.9,
+    //touchEnabled: false
+  //});
+
+  //var messageLabel = Ti.UI.createLabel({
+    //width: 250, height: 'auto',
+    //text: message,
+    //color: '#fff',
+    //font: {fontFamily: 'Helvetica Neue', fontSize: 13},
+    //textAlign: 'center'
+  //});
+
+  //messageWin.add(messageView);
+  //messageWin.add(messageLabel);
+  //messageWin.open();
+
+  //setTimeout(function () {
+    //messageWin.close({
+      //opacity: 0,
+      //duration: 500
+    //});
+  //}, 3000);
+//};
+
 P.UI.flash = function (message) {
-  var messageWin = Ti.UI.createWindow({
-    bottom: 70,
-    height: 40, width: 250,
-    borderRadius: 10,
-    touchEnabled: false
-  });
-
-  var messageView = Ti.UI.createView({
-    height: 40, width: 250,
-    borderRadius: 10,
-    backgroundColor: '#1B1C1E',
-    opacity: 0.9,
-    touchEnabled: false
-  });
-
-  var messageLabel = Ti.UI.createLabel({
-    width: 250, height: 'auto',
-    text: message,
-    color: '#fff',
-    font: {fontFamily: 'Helvetica Neue', fontSize: 13},
+  Titanium.UI.createNotification({
+    duration: 5000,
+    message: message,
     textAlign: 'center'
-  });
-
-  messageWin.add(messageView);
-  messageWin.add(messageLabel);
-  messageWin.open();
-
-  setTimeout(function () {
-    messageWin.close({
-      opacity: 0,
-      duration: 500
-    });
-  }, 3000);
+  }).show();
 };
 
 /*
@@ -43,7 +53,7 @@ P.UI.createOptionsMenu = function () {
   if (Ti.Platform.name == "android") {
 
     var activity = Ti.Android.currentActivity;
-    var LOGIN = 1, LOGOUT = 2;
+    var LOGIN = 1, LOGOUT = 2; SYNC = 3;
 
     activity.onCreateOptionsMenu = function (e) {
       var menu = e.menu;
@@ -56,6 +66,13 @@ P.UI.createOptionsMenu = function () {
           url: '../windows/settings.js',
           modal: true
         }).open();
+      });
+
+      // login menu item
+      var syncMenuItem = menu.add({title: syncTitle, itemId: SYNC});
+      //loginMenuItem.setIcon("sync.png"); // TODO: make icon
+      syncMenuItem.addEventListener('click', function () {
+        P.db.syncProblems();
       });
 
       // disclaimer menu item
@@ -96,6 +113,14 @@ P.UI.createOptionsMenu = function () {
     activity.onPrepareOptionsMenu = function (e) {
       var menu = e.menu;
       var loggedIn = P.user.loggedIn();
+      var problemsCount = P.db.countLocalProblems();
+
+      if (problemsCount > 0) {
+        menu.findItem(SYNC).setTitle(syncTitle + ' (' + problemsCount + ')');
+        menu.findItem(SYNC).setVisible(true);
+      } else {
+        menu.findItem(SYNC).setVisible(false);
+      }
 
       menu.findItem(LOGIN).setVisible(!loggedIn);
       menu.findItem(LOGOUT).setVisible(loggedIn);
@@ -115,10 +140,7 @@ P.UI.requirements = function () {
   }
 
   if (errors.length) {
-    Ti.UI.createAlertDialog({
-      title: 'Информација',
-      message: 'За користење на PopraviMK потребно е да вклучите: ' + errors.join(', ')
-    }).show();
+    P.UI.flash('За користење на PopraviMK потребно е да вклучите: ' + errors.join(', '));
   }
 };
 
@@ -131,6 +153,7 @@ P.UI.createMapView = function (data, options) {
   }).open();
 };
 
+// TODO: open Geolocation settings!?
 P.UI.geolocationProblem = function () {
   Titanium.UI.createAlertDialog({
     title: "Локација",
@@ -315,6 +338,7 @@ P.UI.createColorPicker = function (elements, top, left) {
   return picker;
 };
 
+// TODO: open internet settings!?
 P.UI.connectionError = function () {
   Titanium.UI.createAlertDialog({
     title: "Интернет конекција", 
@@ -323,10 +347,7 @@ P.UI.connectionError = function () {
 };
 
 P.UI.fieldsError = function () {
-  Ti.UI.createAlertDialog({
-    title: 'Недостасуваат податоци', 
-    message: 'Ве молиме внесете опис за проблемот.'
-  }).show();
+  P.UI.flash('Ве молиме внесете минимум опис за проблемот.');
 };
 
 P.UI.cameraError = function () {
@@ -357,31 +378,10 @@ P.UI.serverError = function () {
   }).show();
 };
 
-P.UI.loginError = function (message) {
-  Ti.UI.createAlertDialog({
-    title: 'Проблем со најавување', 
-    message: message
-  }).show();
-};
-
 P.UI.xhrError = function () {
   Ti.UI.createAlertDialog({
     title: 'Неуспешно праќање', 
     message: 'Се јавија проблеми при испраќање. Ве молиме обидете се повторно.'
-  }).show();
-};
-
-P.UI.noEmail = function () {
-  Ti.UI.createAlertDialog({
-    title: 'Недостасува email адреса', 
-    message: 'Ве молиме поставете email адреса во Поставки за да ги листате вашите пријавени проблеми'
-  }).show();
-};
-
-P.UI.invalidEmail = function () {
-  Ti.UI.createAlertDialog({
-    title: 'Невалидна email адреса', 
-    message: 'Форматот на внесената email адреса не е валиден.'
   }).show();
 };
 
@@ -400,10 +400,7 @@ P.UI.apiKeyError = function () {
 };
 
 P.UI.loggedInError = function () {
-  Ti.UI.createAlertDialog({
-    title: 'Не сте најавени', 
-    message: 'Ве молиме најавете се.'
-  }).show();
+  P.UI.flash('Не сте најавени! Ве молиме најавете се.');
 };
 
 P.UI.emptyCommentError = function () {

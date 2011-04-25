@@ -91,10 +91,7 @@ var scrollView = Ti.UI.createScrollView({
       });
 
       var successCallback = function () {
-        Ti.UI.createAlertDialog({
-          title: 'Успешна промена!', 
-          message: 'Статусот е успешно изменет. Ви благодариме!'
-        }).show();
+        P.UI.flash('Статусот е успешно изменет. Ви благодариме!');
         problem.status = selectedStatus;
       };
 

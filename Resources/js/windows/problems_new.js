@@ -35,7 +35,6 @@ var createMunicipalityPicker = function () {
   });
 };
 
-
 var scrollView = Ti.UI.createScrollView({
   top: 0,
   contentWidth: "auto", contentHeight: "auto",
@@ -187,13 +186,13 @@ var buttonsView = Ti.UI.createView({
   width: 300, height: 50
 });
 var resetButton = Titanium.UI.createButton({
-  left: 20, top: 5,
-  width: 120, height: 40,
+  left: 5, top: 5,
+  width: 90, height: 35,
   title: "Избриши",
   backgroundImage: '../../images/buttons/button-off.png',
   backgroundSelectedImage: '../../images/buttons/button-on.png',
   color: "#FFFFFF",
-  font: {fontSize: 17, fontWeight: 'bold'}
+  font: {fontSize: 14, fontWeight: 'bold'}
 });
 var clearAlert = Titanium.UI.createAlertDialog({
   title: 'Враќање на почеток',
@@ -209,21 +208,66 @@ resetButton.addEventListener("click", function (e) {
   clearAlert.show();
 });
 
+var problemSaveCallback = function () {
+  clearAllValues();
+  P.UI.flash("Проблемот е успешно сочуван локално, не заборавајте да направите синхронизација со серверот.");
+}
+
+
+var saveButton = Titanium.UI.createButton({
+  left: 105, top: 5,
+  width: 90, height: 35,
+  title: "Сочувај",
+  backgroundImage: '../../images/buttons/button-off.png',
+  backgroundSelectedImage: '../../images/buttons/button-on.png',
+  color: "#FFFFFF",
+  font: {fontSize: 14, fontWeight: 'bold'}
+});
+saveButton.addEventListener("click", function (e) {
+  params.description = descriptionField.value;
+  params.weight      = weightSlider.value;
+
+  if (!descriptionField.value) {
+    P.UI.fieldsError();
+  } else {
+    if (P.config.virtualDevice) {
+      // for virtual device submit event with fake latitude and longitude
+      params.latitude = 0; params.longitude = 0;
+      P.db.createProblem(params);
+      problemSaveCallback();
+    } else {
+      Titanium.Geolocation.getCurrentPosition(function (e) {
+        if (e.error) {
+          P.UI.locationError();
+        } else {
+          params.latitude = e.coords.latitude; params.longitude = e.coords.longitude;
+          P.db.createProblem(params);
+          problemSaveCallback();
+        }
+      });
+    }
+  }
+
+
+});
+
 var sendButton = Titanium.UI.createButton({
-  right: 20, top: 5,
-  width: 120, height: 40,
+  left: 205, top: 5,
+  width: 90, height: 35,
   title: "Испрати",
   backgroundImage: '../../images/buttons/button-off.png',
   backgroundSelectedImage: '../../images/buttons/button-on.png',
   color: "#FFFFFF",
-  font: {fontSize: 17, fontWeight: 'bold'}
+  font: {fontSize: 14, fontWeight: 'bold'}
 });
-buttonsView.add(resetButton);
-buttonsView.add(sendButton);
-scrollView.add(buttonsView);
 sendButton.addEventListener("click", function (e) {
   sendProblemClicked();
 });
+
+buttonsView.add(resetButton);
+buttonsView.add(saveButton);
+buttonsView.add(sendButton);
+scrollView.add(buttonsView);
 win.add(scrollView);
 
 
@@ -344,11 +388,7 @@ var sendProblemClicked = function () {
 };
 
 var successCallback = function () {
-  Ti.UI.createAlertDialog({
-    title: 'Успешно пријавување!', 
-    message: 'Проблемот е успешно пријавен. Ви благодариме!'
-  }).show();
-
+  P.UI.flash('Проблемот е успешно пријавен. Ви благодариме!');
   clearAllValues();
 }
 
@@ -362,7 +402,7 @@ var errorCallback = function (json) {
     message = "Се појави технички проблем при испраќање на сликата.";
   }
 
-  Ti.UI.createAlertDialog({title: 'Грешка', message: message}).show();
+  P.UI.flash(message);
   clearAllValues();
 }
 

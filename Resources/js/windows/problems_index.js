@@ -21,7 +21,7 @@ var showLatestProblemsTable = function () {
 };
 var showMyProblemsTable = function () {
   if (!Titanium.App.Properties.getString("email")) {
-    P.UI.noEmail();
+    P.UI.flash('Ве молиме внесете ја вашата email адреса во Поставки за да ги листате вашите пријавени проблеми');
   } else {
     P.http.getMyProblems(function (problems) {
       myProblemsTable.setData(P.UI.buildProblemsTableData(problems));

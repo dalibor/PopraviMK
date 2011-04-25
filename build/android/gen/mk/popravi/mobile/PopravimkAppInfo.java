@@ -32,7 +32,7 @@ public final class PopravimkAppInfo implements ITiAppInfo
 	}
 	
 	public String getVersion() {
-		return "1.0";
+		return "2.0";
 	}
 	
 	public String getPublisher() {
@@ -44,7 +44,7 @@ public final class PopravimkAppInfo implements ITiAppInfo
 	}
 	
 	public String getCopyright() {
-		return "2010 by Dalibor Nasevic";
+		return "2010 - 2011 by Dalibor Nasevic";
 	}
 	
 	public String getDescription() {

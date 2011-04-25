@@ -131,7 +131,7 @@ saveButton.addEventListener("click", function (e) {
     Ti.App.Properties.setString("email", emailField.value);
     P.UI.flash("Вашите информации се успешно запишани.");
   } else {
-    P.UI.invalidEmail();
+    P.UI.flash('Форматот на внесената email адреса не е валиден.');
   }
 });
 // EVENTS END
