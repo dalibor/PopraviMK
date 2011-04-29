@@ -44,7 +44,7 @@ public final class PopravimkAppInfo implements ITiAppInfo
 	}
 	
 	public String getCopyright() {
-		return "2010 - 2011 by Dalibor Nasevic";
+		return "2010-2011 by Dalibor Nasevic";
 	}
 	
 	public String getDescription() {

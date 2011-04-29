@@ -1,6 +1,7 @@
 P.UI = {};
 
-var syncTitle = 'Синхронизирај';
+var syncTitle = 'Испрати';
+var deleteTitle = 'Избриши';
 
 //P.UI.flash = function (message) {
   //var messageWin = Ti.UI.createWindow({
@@ -39,11 +40,16 @@ var syncTitle = 'Синхронизирај';
 //};
 
 P.UI.flash = function (message) {
-  Titanium.UI.createNotification({
-    duration: 5000,
+  var toast = Titanium.UI.createNotification({
+    // Set the duration to either Ti.UI.NOTIFICATION_DURATION_LONG or NOTIFICATION_DURATION_SHORT
+    duration: Ti.UI.NOTIFICATION_DURATION_LONG,
     message: message,
     textAlign: 'center'
-  }).show();
+  })
+  toast.show();
+
+  // a way to extend duration of the toats notification
+  //setTimeout ( function () { toast.show() }, 4000 );
 };
 
 /*
@@ -53,7 +59,7 @@ P.UI.createOptionsMenu = function () {
   if (Ti.Platform.name == "android") {
 
     var activity = Ti.Android.currentActivity;
-    var LOGIN = 1, LOGOUT = 2; SYNC = 3;
+    var LOGIN = 1, LOGOUT = 2; SYNC = 3; DELETE = 4;
 
     activity.onCreateOptionsMenu = function (e) {
       var menu = e.menu;
@@ -68,7 +74,14 @@ P.UI.createOptionsMenu = function () {
         }).open();
       });
 
-      // login menu item
+      // delete menu item
+      var deleteLocalProblemsMenuItem = menu.add({title: deleteTitle, itemId: DELETE});
+      //deleteLocalProblemsMenuItem.setIcon("delete.png"); // TODO: make icon
+      deleteLocalProblemsMenuItem.addEventListener('click', function () {
+        P.db.deleteLocalProblems();
+      });
+
+      // sync menu item
       var syncMenuItem = menu.add({title: syncTitle, itemId: SYNC});
       //loginMenuItem.setIcon("sync.png"); // TODO: make icon
       syncMenuItem.addEventListener('click', function () {
@@ -116,9 +129,12 @@ P.UI.createOptionsMenu = function () {
       var problemsCount = P.db.countLocalProblems();
 
       if (problemsCount > 0) {
+        menu.findItem(DELETE).setTitle(deleteTitle + ' (' + problemsCount + ')');
+        menu.findItem(DELETE).setVisible(true);
         menu.findItem(SYNC).setTitle(syncTitle + ' (' + problemsCount + ')');
         menu.findItem(SYNC).setVisible(true);
       } else {
+        menu.findItem(DELETE).setVisible(false);
         menu.findItem(SYNC).setVisible(false);
       }
 
@@ -128,21 +144,21 @@ P.UI.createOptionsMenu = function () {
   };
 };
 
-P.UI.requirements = function () {
-  var errors = [];
+//P.UI.requirements = function () {
+  //var errors = [];
 
-  if (!Ti.Network.online) {
-    errors.push("интернет конекција");
-  }
+  //if (!Ti.Network.online) {
+    //errors.push("интернет конекција");
+  //}
 
-  if (!Ti.Geolocation.locationServicesEnabled) {
-    errors.push("гео лоцирање");
-  }
+  //if (!Ti.Geolocation.locationServicesEnabled) {
+    //errors.push("гео лоцирање");
+  //}
 
-  if (errors.length) {
-    P.UI.flash('За користење на PopraviMK потребно е да вклучите: ' + errors.join(', '));
-  }
-};
+  //if (errors.length) {
+    //P.UI.flash('За користење на PopraviMK потребно е да вклучите: ' + errors.join(', '));
+  //}
+//};
 
 
 P.UI.createMapView = function (data, options) {
@@ -282,6 +298,7 @@ P.UI.buildProblemsTableData = function (problems) {
 };
 
 
+
 P.UI.getTwitterDataRow = function (object, i) {
   var row = Titanium.UI.createTableViewRow({
     bottom: 5,
@@ -299,11 +316,21 @@ P.UI.getTwitterDataRow = function (object, i) {
   });
 
   var commentLabel = Ti.UI.createLabel({
+    autoLink: Ti.UI.Android.LINKIFY_ALL,
     top: 5, left: 57, right: 5,
     color: '#AEAEB0',
     font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
     text: object.text
   });
+
+  //var commentLabel = Ti.UI.createTextArea({
+    //autoLink: Ti.UI.AUTODETECT_ALL,
+    //top: 5, left: 57, right: 5,
+    //editable: false, // this needs to be set to false, otherwise data detection type will fail
+    //color: '#AEAEB0',
+    //font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
+    //value: object.text
+  //});
 
   var dateLabel = Ti.UI.createLabel({
     top: 5, left: 57,
@@ -338,16 +365,29 @@ P.UI.createColorPicker = function (elements, top, left) {
   return picker;
 };
 
-// TODO: open internet settings!?
 P.UI.connectionError = function () {
-  Titanium.UI.createAlertDialog({
-    title: "Интернет конекција", 
-    message: "Не е пронајдена интернет конекција. Ве молиме проверете дали уредот е врзан на интернет."
-  }).show();
+  //P.UI.flash("Не е пронајдена интернет конекција. Ве молиме проверете дали уредот е врзан на интернет.");
+
+  var alert = Titanium.UI.createAlertDialog({
+    title: 'Интернет конекција',
+    message: 'Не е пронајдена интернет конекција. Дали сакате да изберете интернет конекција?',
+    buttonNames: ['Да', 'Не']
+  });
+  alert.addEventListener("click", function (e) {
+    if (e.index == 0) {
+      var intent = Ti.Android.createIntent({action: "android.settings.WIRELESS_SETTINGS"});
+      Ti.Android.currentActivity.startActivity(intent);
+    }
+  });
+  alert.show();
+};
+
+P.UI.syncError = function () {
+  P.UI.flash('Се појави проблем при испраќањето на проблемите. Ве молиме обидете се повторно.');
 };
 
 P.UI.fieldsError = function () {
-  P.UI.flash('Ве молиме внесете минимум опис за проблемот.');
+  P.UI.flash('Недостасува Опис за проблемот.');
 };
 
 P.UI.cameraError = function () {
@@ -379,10 +419,7 @@ P.UI.serverError = function () {
 };
 
 P.UI.xhrError = function () {
-  Ti.UI.createAlertDialog({
-    title: 'Неуспешно праќање', 
-    message: 'Се јавија проблеми при испраќање. Ве молиме обидете се повторно.'
-  }).show();
+  P.UI.flash('Се јавија проблеми при испраќање. Ве молиме обидете се повторно.');
 };
 
 P.UI.commentError = function () {

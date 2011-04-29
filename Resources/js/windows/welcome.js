@@ -86,8 +86,8 @@ var buttonsView = Ti.UI.createView({
 var resetButton = Titanium.UI.createButton({
   left: 0,
   width: 120, height: 40,
-  backgroundImage: '../../images/buttons/button-off.png',
-  backgroundSelectedImage: '../../images/buttons/button-on.png',
+  backgroundImage: '../../images/buttons/dark_off.png',
+  backgroundSelectedImage: '../../images/buttons/dark_on.png',
   title: 'Анонимно',
   font: {fontSize: 17, fontWeight: 'bold'},
   color: '#FFFFFF'
@@ -106,8 +106,8 @@ var saveButton = Titanium.UI.createButton({
   title: 'Сними',
   font: {fontSize: 17, fontWeight: 'bold'},
   color: '#FFFFFF',
-  backgroundImage: '../../images/buttons/button-off.png',
-  backgroundSelectedImage: '../../images/buttons/button-on.png'
+  backgroundImage: '../../images/buttons/dark_off.png',
+  backgroundSelectedImage: '../../images/buttons/dark_on.png'
 });
 saveButton.addEventListener('click', function (e) {
   var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;

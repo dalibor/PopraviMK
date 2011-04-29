@@ -50,14 +50,25 @@ P.http.sync = function (callback) {
 
 P.http.getJSON = function (url, callback) {
   if (Ti.Network.online == false) {
-    P.UI.flash("Не е пронајдена интернет конекција. Ве молиме проверете дали уредот е врзан на интернет.");
-  } else {
-    var indicator = Ti.UI.createActivityIndicator({message: 'Вчитувам'})
-    indicator.show();
+    P.UI.connectionError();
+    return;
+  }
 
-    var xhr = Ti.Network.createHTTPClient();
-    xhr.onload = function () {
-      indicator.hide();
+  var indicator = Ti.UI.createActivityIndicator({message: 'Вчитувам'})
+  indicator.show();
+
+  var xhr = Ti.Network.createHTTPClient();
+  xhr.setTimeout(20000);
+
+  xhr.onerror = function () {
+    indicator.hide();
+    P.UI.flash('Се јави проблем при поврзување со серверот. Ве молиме обидете се подоцна.');
+  };
+
+  xhr.onload = function () {
+    indicator.hide();
+
+    if (this.status === 200) {
       var json = JSON.parse(this.responseText);
 
       if (json.status === 'api_key') {
@@ -67,16 +78,13 @@ P.http.getJSON = function (url, callback) {
       } else {
         callback(json);
       }
-    };
+    } else {
+      P.UI.generalError();
+    }
+  };
 
-    xhr.onerror = function () {
-      indicator.hide();
-      P.UI.flash('Се јави проблем при поврзување со серверот. Ве молиме обидете се подоцна.');
-    };
-
-    xhr.open('GET', url);
-    xhr.send();
-  }
+  xhr.open('GET', url);
+  xhr.send();
 };
 
 P.http.getProblems = function (url, callback) {
@@ -155,6 +163,7 @@ P.http.showProfileTweets = function (table, noNewsLabel) {
 P.http.showSearchTweets = function (tweetsTable, noNewsLabel) {
   tweetsTable.setData([]);
   var url = 'http://search.twitter.com/search.json?q=popravimk';
+
   P.http.getJSON(url, function (json) {
     if (json && json.results && json.results.length) {
       noNewsLabel.hide();
@@ -179,6 +188,11 @@ P.http.showSearchTweets = function (tweetsTable, noNewsLabel) {
 
 
 P.http.createProblem = function (params, successCallback, errorCallback, errorHandler) {
+  if (Ti.Network.online == false) {
+    P.UI.connectionError();
+    return;
+  }
+
   if (params.latitude == null) { params.latitude = 0.0; }
   if (params.longitude == null) { params.longitude = 0.0; }
 
@@ -197,15 +211,21 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
     token: token
   }});
 
-  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам податоци'});
+  var uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам податоци'});
   uploadIndicator.show();
 
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
+  xhr.setTimeout(20000);
+
+  xhr.onerror = function () {
+    uploadIndicator.hide();
+    P.UI.xhrError();
+  };
 
   xhr.onload = function () {
+    uploadIndicator.hide();
+
     if (this.status === 200) {
-      uploadIndicator.hide();
       var problem = JSON.parse(this.responseText);
 
       if (problem.status === 'ok') {
@@ -233,62 +253,90 @@ P.http.createProblem = function (params, successCallback, errorCallback, errorHa
 };
 
 
-P.http.uploadPhoto = function (problem_id, token, image, successCallback, errorCallback) {
-  if (problem_id == null) {
+P.http.uploadPhoto = function (problemId, token, image, successCallback, errorCallback) {
+  if (Ti.Network.online == false) {
+    P.UI.connectionError();
+    return;
+  }
+
+  if (problemId == null) {
     P.UI.xhrError();
     return;
   }
 
-  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам слика'});
+  var uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам слика'});
   uploadIndicator.show();
 
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
   xhr.setTimeout(20000);
 
+  xhr.onerror = function () {
+    uploadIndicator.hide();
+    P.UI.xhrError();
+  }
+
   xhr.onload = function () {
-    var response = JSON.parse(this.responseText);
     uploadIndicator.hide();
 
-    if (response.status === 'ok') {
-      successCallback();
-    } else if (response.status === 'api_key') {
-      P.UI.apiKeyError();
-    } else if (response.status === 'access_denied') {
-      P.UI.loggedInError();
+    if (this.status === 200) {
+      var response = JSON.parse(this.responseText);
+
+      if (response.status === 'ok') {
+        successCallback();
+      } else if (response.status === 'api_key') {
+        P.UI.apiKeyError();
+      } else if (response.status === 'access_denied') {
+        P.UI.loggedInError();
+      } else {
+        errorCallback(response);
+      }
     } else {
-      errorCallback(response);
+      P.UI.generalError();
     }
   };
 
   var payload = {"_method": "PUT", "photo": image, token: token};
 
-  xhr.open('PUT', P.config.apiEndpoint  + '/problems/' + problem_id + '.json' + 
+  xhr.open('PUT', P.config.apiEndpoint  + '/problems/' + problemId + '.json' + 
     '?api_key=' + P.config.api_key);
   xhr.send(payload);
 };
 
-P.http.changeProblemStatus = function (problem_id, status, 
+P.http.changeProblemStatus = function (problemId, status, 
     successCallback, accessDeniedCallback) {
-  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Менувам статус на проблем'});
+
+  if (Ti.Network.online == false) {
+    P.UI.connectionError();
+    return;
+  }
+
+  var uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Менувам статус на проблем'});
   uploadIndicator.show();
 
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
   xhr.setTimeout(20000);
+
+  xhr.onerror = function () {
+    uploadIndicator.hide();
+    P.UI.xhrError();
+  };
 
   xhr.onload = function () {
     var json = JSON.parse(this.responseText);
     uploadIndicator.hide();
 
-    if (json.status === 'ok') {
-      successCallback();
-    } else if (json.status === 'access_denied') {
-      accessDeniedCallback();
-    } else if (json.status === 'error') {
-      P.UI.serverError();
-    } else if (json.status === 'api_key') {
-      P.UI.apiKeyError();
+    if (this.status === 200) {
+      if (json.status === 'ok') {
+        successCallback();
+      } else if (json.status === 'access_denied') {
+        accessDeniedCallback();
+      } else if (json.status === 'error') {
+        P.UI.serverError();
+      } else if (json.status === 'api_key') {
+        P.UI.apiKeyError();
+      } else {
+        P.UI.generalError();
+      }
     } else {
       P.UI.generalError();
     }
@@ -296,25 +344,39 @@ P.http.changeProblemStatus = function (problem_id, status,
 
   var payload = {"_method": "PUT", "status": status};
 
-  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problem_id + 
+  xhr.open('PUT', P.config.apiEndpoint + '/problems/' + problemId + 
     '/update_status.json?api_key=' + P.config.api_key);
   xhr.send(payload);
 };
 
 P.http.login = function (successCallback) {
+  if (Ti.Network.online == false) {
+    P.UI.connectionError();
+    return;
+  }
+
+  var uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам податоци'});
+  uploadIndicator.show();
+
   var payload = JSON.stringify({
     email: emailField.value, 
     password: passwordField.value
   });
 
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
+  xhr.setTimeout(20000);
+
+  xhr.onerror = function () {
+    uploadIndicator.hide();
+    P.UI.xhrError();
+  };
 
   xhr.onload = function () {
     uploadIndicator.hide();
 
     if (this.status === 200) {
       var response = JSON.parse(this.responseText);
+
       if (response.status === 'ok') {
         Ti.App.Properties.setString('cookie', this.getResponseHeader('Set-Cookie'));
         Ti.App.Properties.setString('municipality_id', response.municipality_id);
@@ -335,9 +397,9 @@ P.http.login = function (successCallback) {
   //Ti.App.Properties.setString("cookie", "_popravi.mk_session=BAh7ByIPc2Vzc2lvbl9pZCIlYTYzODM0MGVjZWU1ODU1NTlhOWU4MGEwMDRlNmIyNjMiDHVzZXJfaWRpVg==--5653024a8388b7561e5eee0a6d84143ab16753fd");
 
   xhr.open('POST', P.config.apiEndpoint + '/session?api_key=' + P.config.api_key);
+
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
-
   // NOTE: Titanium can't set cookie on the second request
   // xhr.setRequestHeader('Cookie', 'something') will works the first time
   // but after a successful response from server with a 'Set-Cookie' header,
@@ -347,20 +409,23 @@ P.http.login = function (successCallback) {
   xhr.send(payload);
 };
 
-P.http.getComments = function (problem_id, callback) {
+P.http.getComments = function (problemId, callback) {
   var url = P.config.apiEndpoint + '/comments.json?api_key=' + P.config.api_key +
-    '&problem_id=' + problem_id;
+    '&problem_id=' + problemId;
   P.http.getJSON(url, function (json) {
     callback(json);
   });
 };
 
 
-P.http.createComment = function (problem_id, content, successCallback) {
-  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам коментар'});
-  uploadIndicator.show();
+P.http.createComment = function (problemId, content, successCallback) {
+  if (Ti.Network.online == false) {
+    P.UI.connectionError();
+    return;
+  }
 
-  //P.http.login(successCallback);
+  var uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам коментар'});
+  uploadIndicator.show();
 
   var payload = JSON.stringify({
     name: Ti.App.Properties.getString("name"), 
@@ -369,7 +434,12 @@ P.http.createComment = function (problem_id, content, successCallback) {
   });
 
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
+  xhr.setTimeout(20000);
+
+  xhr.onerror = function () {
+    uploadIndicator.hide();
+    P.UI.xhrError();
+  };
 
   xhr.onload = function () {
     uploadIndicator.hide();
@@ -392,6 +462,7 @@ P.http.createComment = function (problem_id, content, successCallback) {
 
   xhr.open('POST', P.config.apiEndpoint + '/comments?api_key=' + P.config.api_key +
     '&problem_id=' + problemId);
+
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('Accept', 'application/json');
   xhr.setRequestHeader('Cookie', Ti.App.Properties.getString("cookie"));
@@ -400,12 +471,7 @@ P.http.createComment = function (problem_id, content, successCallback) {
 };
 
 
-
-
-
-
-
-P.http.massCreateProblem = function (params, successCallback) {
+P.http.massCreateProblem = function (params, successCallback, errorCallback) {
   if (params.latitude == null) { params.latitude = 0.0; }
   if (params.longitude == null) { params.longitude = 0.0; }
 
@@ -421,17 +487,29 @@ P.http.massCreateProblem = function (params, successCallback) {
   }});
 
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
+  xhr.setTimeout(20000);
+
+  xhr.onerror = function () {
+    errorCallback();
+    P.UI.xhrError();
+  };
 
   xhr.onload = function () {
-    var problem = JSON.parse(this.responseText);
 
-    if (problem.status === 'ok') {
-      if (problem.id && params.image) {
-        P.http.massUploadPhoto(problem.id, params, successCallback);
+    if (this.status === 200) {
+      var problem = JSON.parse(this.responseText);
+
+      if (problem.status === 'ok') {
+        if (problem.id && params.image) {
+          P.http.massUploadPhoto(problem.id, params, successCallback, errorCallback);
+        } else {
+          successCallback(params);
+        }
       } else {
-        successCallback(params);
+        errorCallback();
       }
+    } else {
+      P.UI.generalError();
     }
   };
 
@@ -442,19 +520,31 @@ P.http.massCreateProblem = function (params, successCallback) {
 };
 
 
-P.http.massUploadPhoto = function (remoteProblemId, params, successCallback) {
+P.http.massUploadPhoto = function (remoteProblemId, params, successCallback, errorCallback) {
+  var payload = {"_method": "PUT", "photo": params.image, token: params.token};
+
   var xhr = Titanium.Network.createHTTPClient();
-  xhr.onerror = P.UI.xhrError;
   xhr.setTimeout(20000);
 
-  xhr.onload = function () {
-    var response = JSON.parse(this.responseText);
-    if (response.status === 'ok') {
-      successCallback(params);
-    }
+  xhr.onerror = function () {
+    errorCallback();
+    P.UI.xhrError();
   };
 
-  var payload = {"_method": "PUT", "photo": params.image, token: params.token};
+  xhr.onload = function () {
+    if (this.status === 200) {
+      var response = JSON.parse(this.responseText);
+
+      if (response.status === 'ok') {
+        successCallback(params);
+      } else {
+        errorCallback();
+      }
+    } else {
+      errorCallback();
+      P.UI.generalError();
+    }
+  };
 
   xhr.open('PUT', P.config.apiEndpoint  + '/problems/' + remoteProblemId + '.json' + 
     '?api_key=' + P.config.api_key);

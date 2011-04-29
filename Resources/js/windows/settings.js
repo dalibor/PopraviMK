@@ -11,14 +11,14 @@ var scrollView = Ti.UI.createScrollView({
 });
   var userView = Ti.UI.createView({
     top: 10, left: 10,
-    width: 300, height: 210,
+    width: 300, height: 215,
     backgroundColor: '#1B1C1E',
     borderRadius: 6,
     layout: 'vertical'
   });
     var nameLabel = Ti.UI.createLabel({
       top: 5, left: 10,
-      width: 300, height: 30,
+      width: 300, height: 25,
       color: '#fff',
       font: {fontSize: 18, fontWeight: 'bold'},
       text: 'Име'
@@ -26,7 +26,7 @@ var scrollView = Ti.UI.createScrollView({
     userView.add(nameLabel);
     var nameField = Ti.UI.createTextField({
       top: 5, 
-      height: 35, width: 280, 
+      height: 40, width: 280, 
       color: '#787878', 
       value: Ti.App.Properties.getString('name'), 
       hintText: 'Име', 
@@ -38,7 +38,7 @@ var scrollView = Ti.UI.createScrollView({
 
     var emailLabel = Ti.UI.createLabel({
       top: 5, left: 10,
-      width: 300, height: 30,
+      width: 300, height: 25,
       color: '#fff',
       font: {fontSize: 18, fontWeight: 'bold'},
       text: 'Email'
@@ -46,7 +46,7 @@ var scrollView = Ti.UI.createScrollView({
     userView.add(emailLabel);
     var emailField = Ti.UI.createTextField({
       top: 5, 
-      height: 35, width: 280, 
+      height: 40, width: 280, 
       color: '#787878', 
       value: Ti.App.Properties.getString('email'), 
       hintText: 'E-mail', 
@@ -64,8 +64,8 @@ var scrollView = Ti.UI.createScrollView({
     var resetButton = Ti.UI.createButton({
       left: 0, 
       width: 120, height: 40, 
-      backgroundImage: '../../images/buttons/button-off.png', 
-      backgroundSelectedImage: '../../images/buttons/button-on.png', 
+      backgroundImage: '../../images/buttons/dark_off.png', 
+      backgroundSelectedImage: '../../images/buttons/dark_on.png', 
       title: "Анонимно", 
       font: {fontSize: 17, fontWeight: 'bold'}, 
       color: "#FFFFFF"
@@ -74,8 +74,8 @@ var scrollView = Ti.UI.createScrollView({
     var saveButton = Ti.UI.createButton({
       left: 130, 
       width: 120, height: 40,
-      backgroundImage: '../../images/buttons/button-off.png', 
-      backgroundSelectedImage: '../../images/buttons/button-on.png', 
+      backgroundImage: '../../images/buttons/dark_off.png', 
+      backgroundSelectedImage: '../../images/buttons/dark_on.png', 
       title: "Сними", 
       font: {fontSize: 17, fontWeight: 'bold'}, 
       color: "#FFFFFF"
@@ -88,7 +88,7 @@ var scrollView = Ti.UI.createScrollView({
 
   var descriptionView = Ti.UI.createView({
     top: 240, left: 10, bottom: 10,
-    width: 300, height: 180,
+    width: 300, height: 'auto',
     backgroundColor: '#333',
     borderRadius: 6,
     layout: 'vertical'
@@ -106,8 +106,8 @@ var scrollView = Ti.UI.createScrollView({
       top: 5, left: 10,
       width: 280,
       color: '#EEE',
-      font: {fontSize: 13, fontWeight: 'normal'},
-      text: 'Проблеми може да пријавувате анонимно или со email идентификатор. \nДоколку се идентификувате со email и на веб апликацијата се регистрирате или сте регистрирани со истиот, ќе можете од таму да ги изменувате пријавените проблеми. \nИмето се користи во приказот кај коментарите.'
+      font: {fontSize: 14, fontWeight: 'normal'},
+      text: 'Проблеми може да пријавувате анонимно или со email адреса за идентификација. \n\nДоколку се идентификувате со email адреса и на веб апликацијата се регистрирате или сте регистрирани со истата, ќе можете од таму да ги изменувате пријавените проблеми. \n\nИмето се користи во приказот кај коментарите.'
     });
     descriptionView.add(descriptionLabel);
 

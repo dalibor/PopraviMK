@@ -27,12 +27,16 @@ var scrollView = Ti.UI.createScrollView({
     font: {fontSize: 15, fontWeight: 'bold'}
   });
   scrollView.add(titleLabel);
-  var imageView = Titanium.UI.createImageView({
-    top: 5, left: 5,
-    width: 300,
-    url: P.config.hostname + problem.photo_medium
-  });
-  scrollView.add(imageView);
+
+  if (!problem.photo_medium.match(/default_m.png/)) {
+    var imageView = Titanium.UI.createImageView({
+      top: 5, left: 5,
+      width: 300,
+      url: P.config.hostname + problem.photo_medium
+    });
+    scrollView.add(imageView);
+  }
+
   var subtitleLabel = Ti.UI.createLabel({
     top: 10, left: 5,
     text: problem.description,
@@ -211,8 +215,8 @@ var scrollView = Ti.UI.createScrollView({
       left: 130,
       width: 120, height: 40,
       title: "Коментирај",
-      backgroundImage: '../../images/buttons/button-off.png',
-      backgroundSelectedImage: '../../images/buttons/button-on.png',
+      backgroundImage: '../../images/buttons/dark_off.png',
+      backgroundSelectedImage: '../../images/buttons/dark_on.png',
       font: {fontSize: 17, fontWeight: 'bold'},
       color: "#FFFFFF"
     });

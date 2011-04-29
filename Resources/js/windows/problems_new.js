@@ -1,7 +1,5 @@
 Ti.include('../p.js');
 
-P.UI.requirements();
-
 var win = Titanium.UI.currentWindow;
 win.setBackgroundColor('#3F3F3F');
 var categoryPicker, municipalityPicker;
@@ -38,14 +36,15 @@ var createMunicipalityPicker = function () {
 var scrollView = Ti.UI.createScrollView({
   top: 0,
   contentWidth: "auto", contentHeight: "auto",
-  showVerticalScrollIndicator: true
+  showVerticalScrollIndicator: true,
+  layout: 'vertical'
 });
 
 
 // description
 var descriptionView = Ti.UI.createView({
   top: 10, left: 10,
-  width: 300, height: 100,
+  width: 300, height: 110,
   backgroundColor: '#1B1C1E',
   borderRadius: 6
 });
@@ -58,7 +57,7 @@ var descriptionTitleLabel = Ti.UI.createLabel({
 });
 var descriptionField = Ti.UI.createTextArea({
   top: 35, left: 10,
-  height: 55, width: 280,
+  height: 65, width: 280,
   value: '',
   keyboardType: Ti.UI.KEYBOARD_ASCII,
   color: '#222',
@@ -74,27 +73,27 @@ scrollView.add(descriptionView);
 
 // photo
 var photoView = Ti.UI.createView({
-  top: 120, left: 10,
-  width: 300, height: 70,
+  top: 10, left: 10,
+  width: 300, height: 60,
   backgroundColor: '#1B1C1E',
   borderRadius: 6
 });
 var mediaView = Ti.UI.createView({
-  top: 10, left: 10,
+  top: 5, left: 10,
   width: 50, height: 50,
   backgroundColor: '#222',
   borderRadius: 6
 });
 var mediaButtonBackground = Ti.UI.createView({
-  top: 2, left: ((mediaView.width - 46)/2),
+  top: 2, left: ((mediaView.width - 46) / 2),
   width: 46, height: 46,
   backgroundColor: '#000',
   borderRadius: 5
 });
 var mediaLabel = Ti.UI.createLabel({
-  top: 20, left: 80,
+  top: 15, left: 70,
   width: 280, height: 30,
-  text: 'Додај слика',
+  text: 'Слика',
   color: '#FFF',
   font: {fontSize: 16, fontWeight: 'bold'}
 });
@@ -117,7 +116,7 @@ mediaAddButton.addEventListener('click', function () {
 
 // weight slider
 var weightView = Ti.UI.createView({
-  top: 200, left: 10,
+  top: 10, left: 10,
   width: 300, height: 75,
   backgroundColor: '#333',
   borderRadius: 6
@@ -125,7 +124,7 @@ var weightView = Ti.UI.createView({
 var weightTitleLabel = Ti.UI.createLabel({
   top: 5, left: 10,
   width: 300, height: 30,
-  text: "Тежина? (5)",
+  text: "Тежина (5)",
   color: '#FFF',
   font: {fontSize: 18, fontWeight: 'bold'}
 });
@@ -137,7 +136,7 @@ var weightSlider = Ti.UI.createSlider({
   enabled: true
 });
 weightSlider.addEventListener('change', function (e) {
-  weightTitleLabel.text = "Тежина? (" + Math.round(weightSlider.value) + ")";
+  weightTitleLabel.text = "Тежина (" + Math.round(weightSlider.value) + ")";
 });
 weightView.add(weightTitleLabel);
 weightView.add(weightSlider);
@@ -146,7 +145,7 @@ scrollView.add(weightView);
 
 // category select
 var categoryView = Ti.UI.createView({
-  top: 285, left: 10,
+  top: 10, left: 10,
   width: 300, height: 90,
   backgroundColor: '#333',
   borderRadius: 6
@@ -154,7 +153,7 @@ var categoryView = Ti.UI.createView({
 var categoryTitleLabel = Ti.UI.createLabel({
   top: 5, left: 10,
   width: 300, height: 30,
-  text: "Категорија?",
+  text: "Категорија",
   color: '#FFF',
   font: {fontSize: 18, fontWeight: 'bold'}
 });
@@ -164,7 +163,7 @@ scrollView.add(categoryView);
 
 // municipality select
 var municipalityView = Ti.UI.createView({
-  top: 385, left: 10,
+  top: 10, left: 10,
   width: 300, height: 90,
   backgroundColor: '#333',
   borderRadius: 6
@@ -172,7 +171,7 @@ var municipalityView = Ti.UI.createView({
 var municipalityTitleLabel = Ti.UI.createLabel({
   top: 5, left: 10,
   width: 300, height: 30,
-  text: "Општина?",
+  text: "Општина",
   color: '#FFF',
   font: {fontSize: 18, fontWeight: 'bold'}
 });
@@ -182,16 +181,16 @@ scrollView.add(municipalityView);
 
 // Form buttons
 var buttonsView = Ti.UI.createView({
-  top: 480, left: 10,
+  top: 10, left: 10,
   width: 300, height: 50
 });
 var resetButton = Titanium.UI.createButton({
   left: 5, top: 5,
   width: 90, height: 35,
   title: "Избриши",
-  backgroundImage: '../../images/buttons/button-off.png',
-  backgroundSelectedImage: '../../images/buttons/button-on.png',
-  color: "#FFFFFF",
+  backgroundImage: '../../images/buttons/red_off.png',
+  backgroundSelectedImage: '../../images/buttons/red_on.png',
+  color: "#222",
   font: {fontSize: 14, fontWeight: 'bold'}
 });
 var clearAlert = Titanium.UI.createAlertDialog({
@@ -218,12 +217,13 @@ var saveButton = Titanium.UI.createButton({
   left: 105, top: 5,
   width: 90, height: 35,
   title: "Сочувај",
-  backgroundImage: '../../images/buttons/button-off.png',
-  backgroundSelectedImage: '../../images/buttons/button-on.png',
-  color: "#FFFFFF",
+  backgroundImage: '../../images/buttons/yellow_off.png',
+  backgroundSelectedImage: '../../images/buttons/yellow_on.png',
+  color: "#222",
   font: {fontSize: 14, fontWeight: 'bold'}
 });
 saveButton.addEventListener("click", function (e) {
+  descriptionField.blur();
   params.description = descriptionField.value;
   params.weight      = weightSlider.value;
 
@@ -247,20 +247,19 @@ saveButton.addEventListener("click", function (e) {
       });
     }
   }
-
-
 });
 
 var sendButton = Titanium.UI.createButton({
   left: 205, top: 5,
   width: 90, height: 35,
   title: "Испрати",
-  backgroundImage: '../../images/buttons/button-off.png',
-  backgroundSelectedImage: '../../images/buttons/button-on.png',
-  color: "#FFFFFF",
+  backgroundImage: '../../images/buttons/green_off.png',
+  backgroundSelectedImage: '../../images/buttons/green_on.png',
+  color: "#222",
   font: {fontSize: 14, fontWeight: 'bold'}
 });
 sendButton.addEventListener("click", function (e) {
+  descriptionField.blur();
   sendProblemClicked();
 });
 
@@ -367,8 +366,6 @@ var sendProblemClicked = function () {
 
   if (!descriptionField.value) {
     P.UI.fieldsError();
-  } else if (Titanium.Network.online == false) {
-    P.UI.connectionError();
   } else {
     if (P.config.virtualDevice) {
       // for virtual device submit event with fake latitude and longitude
@@ -447,8 +444,6 @@ var errorHandler = function (actions) {
   syncAlert.show();
 };
 
-
-
-
+//win.addEventListener("click", function() { descriptionField.blur(); });
 
 P.UI.createOptionsMenu();

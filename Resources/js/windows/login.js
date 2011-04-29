@@ -30,13 +30,13 @@ var scrollView = Ti.UI.createScrollView({
 
   var emailLabel = Ti.UI.createLabel({
     left: 10, top: 10,
-    width: 300, height: 30,
+    width: 300, height: 25,
     text: 'Email',
     color: '#fff',
     font: {fontSize: 18}
   });
   var emailField = Ti.UI.createTextField({
-    height: 35, width: 280, 
+    height: 40, width: 280, 
     color: '#787878', 
     hintText: 'Email', 
     autocorrect: false,
@@ -48,13 +48,13 @@ var scrollView = Ti.UI.createScrollView({
 
   var passwordLabel = Ti.UI.createLabel({
     left: 10,
-    width: 300, height: 30,
+    width: 300, height: 25,
     text: "Лозинка",
     color: '#fff',
     font: {fontSize: 18}
   });
   var passwordField = Ti.UI.createTextField({
-    height: 35, width: 280,
+    height: 40, width: 280,
     color: '#787878',
     autocorrect: false,
     //keyboardType: Ti.UI.KEYBOARD_EMAIL, 
@@ -71,8 +71,8 @@ var scrollView = Ti.UI.createScrollView({
       left: 130,
       width: 120, height: 40,
       title: "Најави ме",
-      backgroundImage: '../../images/buttons/button-off.png',
-      backgroundSelectedImage: '../../images/buttons/button-on.png',
+      backgroundImage: '../../images/buttons/dark_off.png',
+      backgroundSelectedImage: '../../images/buttons/dark_on.png',
       font: {fontSize: 17, fontWeight: 'bold'},
       color: "#FFFFFF"
     });
@@ -103,9 +103,6 @@ passwordField.addEventListener('return', function () {
 });
 
 saveButton.addEventListener("click", function (e) {
-  uploadIndicator = Titanium.UI.createActivityIndicator({message: 'Испраќам податоци'});
-  uploadIndicator.show();
-
   var successCallback = function () {
     win.close();
   };
