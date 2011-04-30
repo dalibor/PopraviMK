@@ -32,7 +32,7 @@ var scrollView = Ti.UI.createScrollView({
     var imageView = Titanium.UI.createImageView({
       top: 5, left: 5,
       width: 300,
-      url: P.config.hostname + problem.photo_medium
+      image: P.config.hostname + problem.photo_medium
     });
     scrollView.add(imageView);
   }

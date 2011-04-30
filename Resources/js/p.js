@@ -7,3 +7,4 @@ Ti.include('p/ui.js'); // must be before http.js // TODO: or maybe not !?
 Ti.include('p/http.js');
 Ti.include('p/db.js');
 Ti.include('p/user.js');
+Ti.include('p/geolocation.js');

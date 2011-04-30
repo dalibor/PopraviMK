@@ -43,6 +43,7 @@ P.UI.flash = function (message) {
   var toast = Titanium.UI.createNotification({
     // Set the duration to either Ti.UI.NOTIFICATION_DURATION_LONG or NOTIFICATION_DURATION_SHORT
     duration: Ti.UI.NOTIFICATION_DURATION_LONG,
+    //duration: Ti.UI.NOTIFICATION_DURATION_SHORT,
     message: message,
     textAlign: 'center'
   })
@@ -169,27 +170,10 @@ P.UI.createMapView = function (data, options) {
   }).open();
 };
 
-// TODO: open Geolocation settings!?
-P.UI.geolocationProblem = function () {
-  Titanium.UI.createAlertDialog({
-    title: "Локација",
-    message: "Се појави проблем при детектирање на локација. Ве молиме обидете се повторно."
-  }).show();
-};
-
 P.UI.showMap = function (data) {
-  if (P.config.virtualDevice) {
-    P.UI.createMapView(data, {myLatitude: 42.038034, myLongitude: 21.46386})
-  } else {
-    Titanium.Geolocation.getCurrentPosition(function (e) {
-      if (e.error) {
-        P.UI.geolocationProblem();
-      } else {
-        P.UI.createMapView(data,
-          {myLatitude: e.coords.latitude, myLongitude: e.coords.longitude})
-      }
-    });
-  }
+  P.geolocation.detect(function (coords) {
+    P.UI.createMapView(data, {myLatitude: coords.latitude, myLongitude: coords.longitude})
+  });
 };
 
 P.UI.buildProblemsTableData = function (problems) {
@@ -368,18 +352,18 @@ P.UI.createColorPicker = function (elements, top, left) {
 P.UI.connectionError = function () {
   //P.UI.flash("Не е пронајдена интернет конекција. Ве молиме проверете дали уредот е врзан на интернет.");
 
-  var alert = Titanium.UI.createAlertDialog({
+  var alertDialog = Titanium.UI.createAlertDialog({
     title: 'Интернет конекција',
     message: 'Не е пронајдена интернет конекција. Дали сакате да изберете интернет конекција?',
     buttonNames: ['Да', 'Не']
   });
-  alert.addEventListener("click", function (e) {
+  alertDialog.addEventListener("click", function (e) {
     if (e.index == 0) {
       var intent = Ti.Android.createIntent({action: "android.settings.WIRELESS_SETTINGS"});
       Ti.Android.currentActivity.startActivity(intent);
     }
   });
-  alert.show();
+  alertDialog.show();
 };
 
 P.UI.syncError = function () {
@@ -397,12 +381,28 @@ P.UI.cameraError = function () {
   }).show();
 };
 
-P.UI.locationError = function () {
-  Titanium.UI.createAlertDialog({
-    title: "Локација", 
-    message: "Се појави проблем при детектирање на локација. Ве молиме обидете се повторно."
-  }).show();
+P.UI.locationError = function (error) {
+  var errorMessage = error ? ' (' + error + ')' : '';
+
+  P.UI.flash('Се појави проблем при детектирање на локација' + errorMessage + '. Ве молиме обидете се повторно.');
 };
+
+P.UI.openLocationSettings = function (error) {
+  var errorMessage = error ? ' (' + error + ')' : '';
+
+  var alertDialog = Titanium.UI.createAlertDialog({
+    title: 'Локација',
+    message: 'Се појави проблем при детектирање на локација' + errorMessage + '. Дали сакате да изберете детектирање на локација?',
+    buttonNames: ['Да', 'Не']
+  });
+  alertDialog.addEventListener("click", function (e) {
+    if (e.index == 0) {
+      var intent = Ti.Android.createIntent({action: "android.settings.LOCATION_SOURCE_SETTINGS"});
+      Ti.Android.currentActivity.startActivity(intent);
+    }
+  });
+  alertDialog.show();
+}
 
 P.UI.generalError = function () {
   Ti.UI.createAlertDialog({

@@ -97,22 +97,11 @@ P.http.getProblems = function (url, callback) {
  * Gets nearest problems from the API
  */
 P.http.getNearestProblems = function (callback) {
-  if (P.config.virtualDevice) {
-    // on virtual device use hard-coded the location
+  P.geolocation.detect(function (coords) {
     var url = P.config.apiEndpoint + '/problems.json?api_key=' + P.config.api_key +
-      '&type=nearest&' + 'longitude=' + 21.46385 + "&latitude=" + 42.038033;
+    '&type=nearest&' + 'longitude=' + coords.longitude + '&latitude=' + coords.latitude;
     P.http.getProblems(url, callback);
-  } else {
-    Titanium.Geolocation.getCurrentPosition(function (e) {
-      if (e.error) {
-        P.UI.geolocationProblem();
-      } else {
-        var url = P.config.apiEndpoint + '/problems.json?api_key=' + P.config.api_key +
-        '&type=nearest&' + 'longitude=' + e.coords.longitude + '&latitude=' + e.coords.latitude;
-        P.http.getProblems(url, callback);
-      }
-    });
-  }
+  });
 };
 
 

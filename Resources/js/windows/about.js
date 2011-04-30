@@ -19,10 +19,48 @@ var infoLabel = Ti.UI.createLabel({
 var scrollView = Ti.UI.createScrollView({
   top: 5, bottom: 5,
   left: 5,
-  contentWidth: "auto", contentHeight: "auto",
-  showVerticalScrollIndicator: true
+  contentWidth: 'auto', contentHeight: 'auto',
+  showVerticalScrollIndicator: true,
+  layout: 'vertical'
 });
 scrollView.add(infoLabel);
+
+
+var vipLabel = Ti.UI.createLabel({
+  top: 10,
+  left: 5, right: 5,
+  autoLink: Ti.UI.Android.LINKIFY_ALL,
+  color: '#EEE',
+  font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
+  text: [
+    "Верзија 1.0 од PopraviMK беше објавена на Андроид предизвикот организиран од мобилниот оператор Vip и освои прво место.",
+  ].join("\n\n")
+});
+var vipLogo = Titanium.UI.createImageView({
+  top: 10,
+  image: '../../images/promo/vip.png',
+  width: 180, height: 142
+});
+scrollView.add(vipLabel);
+scrollView.add(vipLogo);
+
+var mmLabel = Ti.UI.createLabel({
+  top: 10,
+  left: 5, right: 5,
+  autoLink: Ti.UI.Android.LINKIFY_ALL,
+  color: '#EEE',
+  font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
+  text: [
+    "Верзија 2.0 од PopraviMK e направена и објавена во соработка со фондацијата Metamorfozis. Целта на оваа верзија е активно вклучување на општините во соработка со граѓаните.",
+  ].join("\n\n")
+});
+var mmLogo = Titanium.UI.createImageView({
+  top: 10,
+  image: '../../images/promo/mm.png',
+  width: 250, height: 41
+});
+scrollView.add(mmLabel);
+scrollView.add(mmLogo);
 
 win.add(scrollView);
 

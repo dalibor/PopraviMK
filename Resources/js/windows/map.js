@@ -12,7 +12,7 @@ var problemLocationAnnotation = Ti.Map.createAnnotation({
   //pincolor: Ti.Map.ANNOTATION_RED,
   pinImage: "../../images/map/marker-red.png",
   animate: true,
-  url: win.params.url
+  image: win.params.url
 });
 
 var myLocationAnnotation = Ti.Map.createAnnotation({

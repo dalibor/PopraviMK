@@ -207,12 +207,6 @@ resetButton.addEventListener("click", function (e) {
   clearAlert.show();
 });
 
-var problemSaveCallback = function () {
-  clearAllValues();
-  P.UI.flash("Проблемот е успешно сочуван локално, не заборавајте да направите синхронизација со серверот.");
-}
-
-
 var saveButton = Titanium.UI.createButton({
   left: 105, top: 5,
   width: 90, height: 35,
@@ -230,22 +224,12 @@ saveButton.addEventListener("click", function (e) {
   if (!descriptionField.value) {
     P.UI.fieldsError();
   } else {
-    if (P.config.virtualDevice) {
-      // for virtual device submit event with fake latitude and longitude
-      params.latitude = 0; params.longitude = 0;
+    P.geolocation.detect(function (coords) {
+      params.latitude = coords.latitude; params.longitude = coords.longitude;
       P.db.createProblem(params);
-      problemSaveCallback();
-    } else {
-      Titanium.Geolocation.getCurrentPosition(function (e) {
-        if (e.error) {
-          P.UI.locationError();
-        } else {
-          params.latitude = e.coords.latitude; params.longitude = e.coords.longitude;
-          P.db.createProblem(params);
-          problemSaveCallback();
-        }
-      });
-    }
+      clearAllValues();
+      P.UI.flash("Проблемот е успешно сочуван локално, не заборавајте да направите синхронизација со серверот.");
+    });
   }
 });
 
@@ -360,30 +344,6 @@ var clearAllValues = function () {
   removePhoto();
 };
 
-var sendProblemClicked = function () {
-  params.description = descriptionField.value;
-  params.weight      = weightSlider.value;
-
-  if (!descriptionField.value) {
-    P.UI.fieldsError();
-  } else {
-    if (P.config.virtualDevice) {
-      // for virtual device submit event with fake latitude and longitude
-      params.latitude = 0; params.longitude = 0;
-      P.http.createProblem(params, successCallback, errorCallback, errorHandler);
-    } else {
-      Titanium.Geolocation.getCurrentPosition(function (e) {
-        if (e.error) {
-          P.UI.locationError();
-        } else {
-          params.latitude = e.coords.latitude; params.longitude = e.coords.longitude;
-          P.http.createProblem(params, successCallback, errorCallback, errorHandler);
-        }
-      });
-    }
-  }
-};
-
 var successCallback = function () {
   P.UI.flash('Проблемот е успешно пријавен. Ви благодариме!');
   clearAllValues();
@@ -442,6 +402,20 @@ var errorHandler = function (actions) {
     }
   });
   syncAlert.show();
+};
+
+var sendProblemClicked = function () {
+  params.description = descriptionField.value;
+  params.weight      = weightSlider.value;
+
+  if (!descriptionField.value) {
+    P.UI.fieldsError();
+  } else {
+    P.geolocation.detect(function (coords) {
+      params.longitude = coords.longitude; params.latitude  = coords.latitude; 
+      P.http.createProblem(params, successCallback, errorCallback, errorHandler);
+    });
+  }
 };
 
 //win.addEventListener("click", function() { descriptionField.blur(); });

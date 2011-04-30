@@ -98,7 +98,7 @@ header.add(myProblemsLabel);
 var refreshImageView = Titanium.UI.createImageView({
   top: 8, right: 10,
   width: 16, height: 16,
-  url: '../../images/icons/refresh.png'
+  image: '../../images/icons/refresh.png'
 });
 header.add(refreshImageView);
 
