@@ -64,8 +64,8 @@ var scrollView = Ti.UI.createScrollView({
     var resetButton = Ti.UI.createButton({
       left: 0, 
       width: 120, height: 40, 
-      backgroundImage: '../../images/buttons/dark_off.png', 
-      backgroundSelectedImage: '../../images/buttons/dark_on.png', 
+      backgroundImage: '../../images/buttons/yellow_off.png', 
+      backgroundSelectedImage: '../../images/buttons/yellow_on.png', 
       title: "Анонимно", 
       font: {fontSize: 17, fontWeight: 'bold'}, 
       color: "#FFFFFF"
@@ -74,8 +74,8 @@ var scrollView = Ti.UI.createScrollView({
     var saveButton = Ti.UI.createButton({
       left: 130, 
       width: 120, height: 40,
-      backgroundImage: '../../images/buttons/dark_off.png', 
-      backgroundSelectedImage: '../../images/buttons/dark_on.png', 
+      backgroundImage: '../../images/buttons/green_off.png', 
+      backgroundSelectedImage: '../../images/buttons/green_on.png', 
       title: "Сними", 
       font: {fontSize: 17, fontWeight: 'bold'}, 
       color: "#FFFFFF"
@@ -115,21 +115,23 @@ scrollView.add(descriptionView);
 win.add(scrollView)
 
 
-
-
 // EVENTS BEGIN
 resetButton.addEventListener("click", function (e) {
   nameField.value = "";
   emailField.value = "";
   Ti.App.Properties.setString("name", "");
   Ti.App.Properties.setString("email", "");
+  nameField.blur();
+  emailField.blur();
   P.UI.flash("Успешно е поставено да пријавувате проблеми анонимно.");
 });
 saveButton.addEventListener("click", function (e) {
   if (P.utility.emailRegExp.test(emailField.value) === true) {
     Ti.App.Properties.setString("name", nameField.value);
     Ti.App.Properties.setString("email", emailField.value);
-    P.UI.flash("Вашите информации се успешно запишани.");
+    nameField.blur();
+    emailField.blur();
+    P.UI.flash("Вашите податоци се запишани.");
   } else {
     P.UI.flash('Форматот на внесената email адреса не е валиден.');
   }

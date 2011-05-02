@@ -72,7 +72,7 @@ var scrollView = Ti.UI.createScrollView({
           id: i
         });
       };
-      statusPicker = P.UI.createColorPicker(statuses, 5, 5);
+      statusPicker = P.UI.createPicker(statuses, 5, 5);
       statusPicker.setSelectedRow(0, selectedStatusRowIndex, true);
 
       statusPicker.addEventListener('change', function (e) {
@@ -207,37 +207,34 @@ var scrollView = Ti.UI.createScrollView({
     borderRadius: 6
   });
   scrollView.add(commentField);
-  var buttonsView = Ti.UI.createView({
-    left: 25,
-    height: 50, width: 250
-  });
-    var commentButton = Ti.UI.createButton({
-      left: 130,
-      width: 120, height: 40,
-      title: "Коментирај",
-      backgroundImage: '../../images/buttons/dark_off.png',
-      backgroundSelectedImage: '../../images/buttons/dark_on.png',
-      font: {fontSize: 17, fontWeight: 'bold'},
-      color: "#FFFFFF"
-    });
-      commentButton.addEventListener("click", function (e) {
-        var successCallback = function (comment) {
-          commentField.value = '';
-          comments = problem.comments;
-          comments.push(comment);
-          problem.comments = comments;
-          commentsTable.add(P.UI.getCommentsRowData(comment));
-          P.UI.flash("Вашиот коментар е успешно креиран.");
-        };
 
-        if (commentField.value) {
-          P.http.createComment(problem.id, commentField.value, successCallback);
-        } else {
-          P.UI.emptyCommentError();
-        }
-      });
-    buttonsView.add(commentButton);
-  scrollView.add(buttonsView);
+  var commentButton = Ti.UI.createButton({
+    left: 170, top: 5,
+    width: 120, height: 40,
+    title: "Коментирај",
+    backgroundImage: '../../images/buttons/green_off.png',
+    backgroundSelectedImage: '../../images/buttons/green_on.png',
+    font: {fontSize: 17, fontWeight: 'bold'},
+    color: "#FFFFFF"
+  });
+    commentButton.addEventListener("click", function (e) {
+      var successCallback = function (comment) {
+        commentField.blur();
+        commentField.value = '';
+        comments = problem.comments;
+        comments.push(comment);
+        problem.comments = comments;
+        commentsTable.add(P.UI.getCommentsRowData(comment));
+        P.UI.flash("Вашиот коментар е успешно креиран.");
+      };
+
+      if (commentField.value) {
+        P.http.createComment(problem.id, commentField.value, successCallback);
+      } else {
+        P.UI.emptyCommentError();
+      }
+    });
+  scrollView.add(commentButton);
 
 
 

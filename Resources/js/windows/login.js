@@ -41,9 +41,9 @@ var scrollView = Ti.UI.createScrollView({
     hintText: 'Email', 
     autocorrect: false,
     value: Ti.App.Properties.getString('email'),
-    //keyboardType: Ti.UI.KEYBOARD_EMAIL, 
+    keyboardType: Ti.UI.KEYBOARD_EMAIL, 
     returnKeyType: Ti.UI.RETURNKEY_DEFAULT, 
-    borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED //passwordMask: true
+    borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
   });
 
   var passwordLabel = Ti.UI.createLabel({
@@ -71,8 +71,8 @@ var scrollView = Ti.UI.createScrollView({
       left: 130,
       width: 120, height: 40,
       title: "Најави ме",
-      backgroundImage: '../../images/buttons/dark_off.png',
-      backgroundSelectedImage: '../../images/buttons/dark_on.png',
+      backgroundImage: '../../images/buttons/green_off.png',
+      backgroundSelectedImage: '../../images/buttons/green_on.png',
       font: {fontSize: 17, fontWeight: 'bold'},
       color: "#FFFFFF"
     });

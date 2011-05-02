@@ -18,7 +18,7 @@ var params = {
 
 
 var createCategoryPicker = function () {
-  categoryPicker = P.UI.createColorPicker(categories, 40, 10);
+  categoryPicker = P.UI.createPicker(categories, 40, 10);
   categoryView.add(categoryPicker);
   categoryPicker.addEventListener('change', function (e) {
     params.category_id = categories[e.rowIndex].id;
@@ -26,7 +26,7 @@ var createCategoryPicker = function () {
 };
 
 var createMunicipalityPicker = function () {
-  municipalityPicker = P.UI.createColorPicker(municipalities, 40, 10);
+  municipalityPicker = P.UI.createPicker(municipalities, 40, 10);
   municipalityView.add(municipalityPicker);
   municipalityPicker.addEventListener('change', function (e) {
     params.municipality_id = municipalities[e.rowIndex].id;
@@ -81,11 +81,11 @@ var photoView = Ti.UI.createView({
 var mediaView = Ti.UI.createView({
   top: 5, left: 10,
   width: 50, height: 50,
-  backgroundColor: '#222',
+  backgroundColor: '#1B1C1E',
   borderRadius: 6
 });
 var mediaButtonBackground = Ti.UI.createView({
-  top: 2, left: ((mediaView.width - 46) / 2),
+  top: 2, left: 2,
   width: 46, height: 46,
   backgroundColor: '#000',
   borderRadius: 5
@@ -118,7 +118,7 @@ mediaAddButton.addEventListener('click', function () {
 var weightView = Ti.UI.createView({
   top: 10, left: 10,
   width: 300, height: 75,
-  backgroundColor: '#333',
+  backgroundColor: '#1B1C1E',
   borderRadius: 6
 });
 var weightTitleLabel = Ti.UI.createLabel({
@@ -147,7 +147,7 @@ scrollView.add(weightView);
 var categoryView = Ti.UI.createView({
   top: 10, left: 10,
   width: 300, height: 90,
-  backgroundColor: '#333',
+  backgroundColor: '#1B1C1E',
   borderRadius: 6
 });
 var categoryTitleLabel = Ti.UI.createLabel({
@@ -165,7 +165,7 @@ scrollView.add(categoryView);
 var municipalityView = Ti.UI.createView({
   top: 10, left: 10,
   width: 300, height: 90,
-  backgroundColor: '#333',
+  backgroundColor: '#1B1C1E',
   borderRadius: 6
 });
 var municipalityTitleLabel = Ti.UI.createLabel({
@@ -190,7 +190,6 @@ var resetButton = Titanium.UI.createButton({
   title: "Избриши",
   backgroundImage: '../../images/buttons/red_off.png',
   backgroundSelectedImage: '../../images/buttons/red_on.png',
-  color: "#222",
   font: {fontSize: 14, fontWeight: 'bold'}
 });
 var clearAlert = Titanium.UI.createAlertDialog({
@@ -213,7 +212,6 @@ var saveButton = Titanium.UI.createButton({
   title: "Сочувај",
   backgroundImage: '../../images/buttons/yellow_off.png',
   backgroundSelectedImage: '../../images/buttons/yellow_on.png',
-  color: "#222",
   font: {fontSize: 14, fontWeight: 'bold'}
 });
 saveButton.addEventListener("click", function (e) {
@@ -239,7 +237,6 @@ var sendButton = Titanium.UI.createButton({
   title: "Испрати",
   backgroundImage: '../../images/buttons/green_off.png',
   backgroundSelectedImage: '../../images/buttons/green_on.png',
-  color: "#222",
   font: {fontSize: 14, fontWeight: 'bold'}
 });
 sendButton.addEventListener("click", function (e) {
@@ -418,6 +415,78 @@ var sendProblemClicked = function () {
   }
 };
 
-//win.addEventListener("click", function() { descriptionField.blur(); });
 
-P.UI.createOptionsMenu();
+// OPTIONS MENU BEGIN
+var activity = Ti.Android.currentActivity;
+var LOGIN = 1, LOGOUT = 2; SYNC = 3; DELETE = 4;
+
+activity.onCreateOptionsMenu = function (e) {
+  var menu = e.menu;
+
+  var settingsMenuItem = menu.add({title: 'Поставки'});
+  settingsMenuItem.addEventListener('click', function () {
+    Ti.UI.createWindow({
+      title: 'Поставки',
+      url: '/js/windows/settings.js',
+      modal: true
+    }).open();
+  });
+
+  var deleteLocalProblemsMenuItem = menu.add({title: 'Избриши', itemId: DELETE});
+  deleteLocalProblemsMenuItem.addEventListener('click', function () {
+    P.db.deleteLocalProblems();
+  });
+
+  var syncMenuItem = menu.add({title: 'Испрати', itemId: SYNC});
+  syncMenuItem.addEventListener('click', function () {
+    P.db.syncProblems();
+  });
+
+  var disclaimerMenuItem = menu.add({title: 'Услови'});
+  disclaimerMenuItem.addEventListener('click', function () {
+    Ti.UI.createWindow({
+      title: 'Услови за користење на PopraviMK',
+      url: '/js/windows/terms.js',
+      modal: true
+    }).open();
+  });
+
+  var aboutMenuItem = menu.add({title: 'Инфо'});
+  aboutMenuItem.addEventListener('click', function () {
+    Ti.UI.createWindow({
+      title: 'За PopraviMK',
+      url: '/js/windows/about.js',
+      modal: true
+    }).open();
+  });
+
+  var loginMenuItem = menu.add({title: 'Најава', itemId: LOGIN});
+  loginMenuItem.addEventListener('click', function () {
+    P.UI.openLoginWindow();
+  });
+
+  var logoutMenuItem = menu.add({title: 'Одјава', itemId: LOGOUT});
+  logoutMenuItem.addEventListener('click', function () {
+    Ti.App.Properties.setString('cookie', '');
+  });
+};
+
+activity.onPrepareOptionsMenu = function (e) {
+  var menu = e.menu;
+  var loggedIn = P.user.loggedIn();
+  var problemsCount = P.db.countLocalProblems();
+
+  if (problemsCount > 0) {
+    menu.findItem(DELETE).setTitle('Избриши (' + problemsCount + ')');
+    menu.findItem(DELETE).setVisible(true);
+    menu.findItem(SYNC).setTitle('Испрати (' + problemsCount + ')');
+    menu.findItem(SYNC).setVisible(true);
+  } else {
+    menu.findItem(DELETE).setVisible(false);
+    menu.findItem(SYNC).setVisible(false);
+  }
+
+  menu.findItem(LOGIN).setVisible(!loggedIn);
+  menu.findItem(LOGOUT).setVisible(loggedIn);
+};
+// OPTIONS MENU END

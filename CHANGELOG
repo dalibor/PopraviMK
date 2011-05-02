@@ -1,2 +1,13 @@
+2011-05-03  Dalibor Nasevic  <dalibor.nasevic@gmail.com>
+
+  * Updated version of Titanium mobile (1.6.1)
+  * Login/Logout functionality
+  * Problem status change (by municipality moderator)
+  * View and create new comments
+  * Offline mode for submitting problems
+  * Lots of UI & performance improvements
+
+
 2010-08-30  Dalibor Nasevic  <dalibor.nasevic@gmail.com>
+
   * Initial version of PopraviMK

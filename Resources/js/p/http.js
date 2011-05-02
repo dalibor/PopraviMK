@@ -125,57 +125,6 @@ P.http.getMyProblems = function (table) {
 };
 
 
-P.http.showProfileTweets = function (table, noNewsLabel) {
-  var url = 'http://twitter.com/statuses/user_timeline/PopraviMK.json';
-
-  P.http.getJSON(url, function (json) {
-    if (json && json.length) {
-      noNewsLabel.hide();
-
-      var tableData = [];
-      for (var i = 0; i < json.length; i++) {
-        var tweet = json[i];
-        tableData.push(P.UI.getTwitterDataRow({
-          profile_image_url: tweet.user.profile_image_url,
-          screen_name: tweet.user.screen_name,
-          text: tweet.text,
-          created_at: tweet.created_at
-        }));
-      }
-
-      table.setData(tableData);
-    }
-  });
-};
-
-
-P.http.showSearchTweets = function (tweetsTable, noNewsLabel) {
-  tweetsTable.setData([]);
-  var url = 'http://search.twitter.com/search.json?q=popravimk';
-
-  P.http.getJSON(url, function (json) {
-    if (json && json.results && json.results.length) {
-      noNewsLabel.hide();
-
-      var tableData = [];
-      for (var i = 0; i < json.results.length; i++) {
-        var tweet = json.results[i];
-        tableData.push(P.UI.getTwitterDataRow({
-          profile_image_url: tweet.profile_image_url,
-          screen_name: tweet.from_user,
-          text: tweet.text,
-          created_at: tweet.created_at
-        }));
-      };
-
-      tweetsTable.setData(tableData);
-    } else {
-      P.http.showProfileTweets(tweetsTable, noNewsLabel); // get only tweets from profile
-    }
-  });
-};
-
-
 P.http.createProblem = function (params, successCallback, errorCallback, errorHandler) {
   if (Ti.Network.online == false) {
     P.UI.connectionError();

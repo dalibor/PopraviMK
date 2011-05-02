@@ -20,7 +20,7 @@ public final class PopravimkAppInfo implements ITiAppInfo
 					
 					properties.setString("ti.android.google.map.api.key.development", "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg");
 					
-					properties.setString("ti.deploytype", "development");
+					properties.setString("ti.deploytype", "test");
 	}
 	
 	public String getId() {
@@ -48,7 +48,7 @@ public final class PopravimkAppInfo implements ITiAppInfo
 	}
 	
 	public String getDescription() {
-		return "PopraviMK allows people to help in detecting problems they have found on public area in Macedonia";
+		return "PopraviMK allows people to help in detecting urban problems they have found on public area in Macedonia";
 	}
 	
 	public String getIcon() {

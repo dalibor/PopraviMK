@@ -8,11 +8,9 @@ var problemLocationAnnotation = Ti.Map.createAnnotation({
   title: win.params.title,
   subtitle: win.params.description,
   leftButton: win.params.photo,
-  //rightButton: win.params.photo,
-  //pincolor: Ti.Map.ANNOTATION_RED,
   pinImage: "../../images/map/marker-red.png",
   animate: true,
-  image: win.params.url
+  url: win.params.url
 });
 
 var myLocationAnnotation = Ti.Map.createAnnotation({

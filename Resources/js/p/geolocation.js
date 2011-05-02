@@ -30,9 +30,6 @@ P.geolocation.detect = function (callback) {
   } else {
     var lastTimestamp;
     var geolocationActive = true;
-    var indicator = Ti.UI.createActivityIndicator({message: 'Пронаоѓам локација'})
-    indicator.show();
-
 
     Ti.Geolocation.preferredProvider = "gps";
 
@@ -55,7 +52,6 @@ P.geolocation.detect = function (callback) {
 
     var stopGeolocation = function () {
       geolocationActive = false;
-      indicator.hide();
       Ti.Geolocation.removeEventListener('location', geoLocationCallback);
     };
 
@@ -80,9 +76,10 @@ P.geolocation.detect = function (callback) {
         P.UI.openLocationSettings(P.geolocation.translateErrorCode(e.code));
       } else {
         lastTimestamp = e.coords.timestamp;
+        P.UI.flash('Пронаоѓам локација...');
       }
     });
 
     Ti.Geolocation.addEventListener('location', geoLocationCallback);
   }
-}
+};

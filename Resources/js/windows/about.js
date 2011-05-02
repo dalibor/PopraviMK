@@ -33,7 +33,7 @@ var vipLabel = Ti.UI.createLabel({
   color: '#EEE',
   font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
   text: [
-    "Верзија 1.0 од PopraviMK беше објавена на Андроид предизвикот организиран од мобилниот оператор Vip и освои прво место.",
+    "Верзија 1.0 од PopraviMK беше објавена на првиот Андроид предизвик во Македонија (2010) организиран од мобилниот оператор Vip и освои прво место.",
   ].join("\n\n")
 });
 var vipLogo = Titanium.UI.createImageView({
@@ -51,7 +51,7 @@ var mmLabel = Ti.UI.createLabel({
   color: '#EEE',
   font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
   text: [
-    "Верзија 2.0 од PopraviMK e направена и објавена во соработка со фондацијата Metamorfozis. Целта на оваа верзија е активно вклучување на општините во соработка со граѓаните.",
+    "Верзија 2.0 од PopraviMK e направена и објавена во соработка со фондацијата Metamorfozis. Целта на оваа верзија е активно вклучување на општините во решавање на проблемите.",
   ].join("\n\n")
 });
 var mmLogo = Titanium.UI.createImageView({
