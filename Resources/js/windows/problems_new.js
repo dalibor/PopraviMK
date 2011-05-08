@@ -33,6 +33,34 @@ var createMunicipalityPicker = function () {
   });
 };
 
+var getSyncLabel = function (problemsCount) {
+  if (problemsCount === 0) {
+    return 'Локално немате сочувано ниту еден проблем.'
+  } else if (problemsCount === 1) {
+    return 'Локално имате сочувано ' + problemsCount + ' проблем.'
+  } else {
+    return 'Локално имате сочувано ' + problemsCount + ' проблеми.'
+  }
+};
+
+var getSyncButton = function (problemsCount) {
+  return 'Пријави (' + problemsCount + ')';
+};
+
+// EVENTS BEGIN
+Ti.App.addEventListener('refresh_sync_view', function (data) {
+  var problemsCount = P.db.countLocalProblems();
+  syncButton.title  = getSyncButton(problemsCount);
+  syncLabel.text    = getSyncLabel(problemsCount)
+
+  if (problemsCount > 0) {
+    syncButtonsView.visible  = true;
+  } else {
+    syncButtonsView.visible  = false;
+  }
+});
+// EVENTS EBD
+
 var scrollView = Ti.UI.createScrollView({
   top: 0,
   contentWidth: "auto", contentHeight: "auto",
@@ -225,6 +253,7 @@ saveButton.addEventListener("click", function (e) {
     P.geolocation.detect(function (coords) {
       params.latitude = coords.latitude; params.longitude = coords.longitude;
       P.db.createProblem(params);
+      Ti.App.fireEvent('refresh_sync_view');
       clearAllValues();
       P.UI.flash("Проблемот е успешно сочуван локално, не заборавајте да направите синхронизација со серверот.");
     });
@@ -234,7 +263,7 @@ saveButton.addEventListener("click", function (e) {
 var sendButton = Titanium.UI.createButton({
   left: 205, top: 5,
   width: 90, height: 35,
-  title: "Испрати",
+  title: "Пријави",
   backgroundImage: '../../images/buttons/green_off.png',
   backgroundSelectedImage: '../../images/buttons/green_on.png',
   font: {fontSize: 14, fontWeight: 'bold'}
@@ -347,59 +376,21 @@ var successCallback = function () {
 }
 
 var errorCallback = function (json) {
-  var message;
-  if (json.type === "photo") {
-    message = "Сликата не е во валиден формат.";
-  } else if (json.type === "token") {
-    message = "Не можете да додадете слика бидејќи е испратен невалиден токен.";
-  } else {
-    message = "Се појави технички проблем при испраќање на сликата.";
-  }
-
-  P.UI.flash(message);
+  P.UI.problemErrorCallback(json);
   clearAllValues();
 }
 
-var errorHandler = function (actions) {
-  var messageSync = []
-  var categorySync = false;
-  var municipalitySync = false;
+var refreshPickersCallback = function (json) {
+  categoryView.remove(categoryPicker);
+  createCategoryPicker();
 
-  if (actions.category === "sync") {
-    categorySync = true;
-    messageSync.push("категории");
-  }
+  municipalityView.remove(municipalityPicker);
+  createMunicipalityPicker();
+}
 
-  if (actions.municipality === "sync") {
-    municipalitySync = true;
-    messageSync.push("општини");
-  }
-
-  var syncAlert = Titanium.UI.createAlertDialog({
-    title: 'Синхронизација', 
-    message: 'Потребно е да направите синхронизација со серверот за да ја превземете изменетата листа на ' + messageSync.join(" и ") + '. Дали сакате синхронизацијата да започне?', 
-    buttonNames: ['Да', 'Не']
-  });
-
-  syncAlert.addEventListener("click", function (e) {
-    if (e.index == 0) {
-      var callback = function () {
-        P.UI.flash("Успешно се синхронизирани категориите и општините со серверот.");
-        categories     = P.db.categories();
-        municipalities = P.db.municipalities();
-
-        categoryView.remove(categoryPicker);
-        createCategoryPicker();
-
-        municipalityView.remove(municipalityPicker);
-        createMunicipalityPicker();
-      };
-
-      P.http.sync(callback);
-    }
-  });
-  syncAlert.show();
-};
+var errorHandler = function (json) {
+  P.db.problemErrorHandler(json, refreshPickersCallback);
+}
 
 var sendProblemClicked = function () {
   params.description = descriptionField.value;
@@ -416,9 +407,77 @@ var sendProblemClicked = function () {
 };
 
 
+
+
+// Sync buttons
+
+var problemsCount = P.db.countLocalProblems();
+
+var syncView = Ti.UI.createView({
+  top: 10, left: 10,
+  width: 300, height: 100,
+  layout: 'vertical'
+});
+var syncLabel = Ti.UI.createLabel({
+  top: 0, left: 10,
+  width: 300, height: 40,
+  color: '#FFF',
+  text: getSyncLabel(problemsCount)
+});
+
+syncButtonsView = Ti.UI.createView({
+  top: 5, left: 35,
+  width: 300, height: 40,
+  visible: (problemsCount > 0)
+});
+
+var previewButton = Titanium.UI.createButton({
+  left: 0, top: 5,
+  width: 110, height: 35,
+  title: "Прегледај",
+  backgroundImage: '../../images/buttons/dark_off.png',
+  backgroundSelectedImage: '../../images/buttons/dark_on.png',
+  font: {fontSize: 14, fontWeight: 'bold'}
+});
+previewButton.addEventListener("click", function (e) {
+  Titanium.UI.createWindow({
+    url: '/js/windows/problems_local.js',
+    navBarHidden: true
+  }).open();
+});
+
+var syncButton = Titanium.UI.createButton({
+  left: 120, top: 5,
+  width: 110, height: 35,
+  title: getSyncButton(problemsCount),
+  backgroundImage: '../../images/buttons/green_off.png',
+  backgroundSelectedImage: '../../images/buttons/green_off.png',
+  font: {fontSize: 14, fontWeight: 'bold'}
+});
+syncButton.addEventListener("click", function (e) {
+  P.UI.syncProblems(function () {
+    Ti.App.fireEvent('refresh_sync_view');
+  });
+});
+
+
+    syncView.add(syncLabel);
+      syncButtonsView.add(syncButton);
+      syncButtonsView.add(previewButton);
+    syncView.add(syncButtonsView);
+  scrollView.add(syncView);
+win.add(scrollView);
+
+
+
+
+
+
+
+
 // OPTIONS MENU BEGIN
 var activity = Ti.Android.currentActivity;
-var LOGIN = 1, LOGOUT = 2; SYNC = 3; DELETE = 4;
+var LOGIN = 1, LOGOUT = 2;
 
 activity.onCreateOptionsMenu = function (e) {
   var menu = e.menu;
@@ -430,16 +489,6 @@ activity.onCreateOptionsMenu = function (e) {
       url: '/js/windows/settings.js',
       modal: true
     }).open();
-  });
-
-  var deleteLocalProblemsMenuItem = menu.add({title: 'Избриши', itemId: DELETE});
-  deleteLocalProblemsMenuItem.addEventListener('click', function () {
-    P.db.deleteLocalProblems();
-  });
-
-  var syncMenuItem = menu.add({title: 'Испрати', itemId: SYNC});
-  syncMenuItem.addEventListener('click', function () {
-    P.db.syncProblems();
   });
 
   var disclaimerMenuItem = menu.add({title: 'Услови'});
@@ -474,17 +523,6 @@ activity.onCreateOptionsMenu = function (e) {
 activity.onPrepareOptionsMenu = function (e) {
   var menu = e.menu;
   var loggedIn = P.user.loggedIn();
-  var problemsCount = P.db.countLocalProblems();
-
-  if (problemsCount > 0) {
-    menu.findItem(DELETE).setTitle('Избриши (' + problemsCount + ')');
-    menu.findItem(DELETE).setVisible(true);
-    menu.findItem(SYNC).setTitle('Испрати (' + problemsCount + ')');
-    menu.findItem(SYNC).setVisible(true);
-  } else {
-    menu.findItem(DELETE).setVisible(false);
-    menu.findItem(SYNC).setVisible(false);
-  }
 
   menu.findItem(LOGIN).setVisible(!loggedIn);
   menu.findItem(LOGOUT).setVisible(loggedIn);

@@ -30,7 +30,6 @@ var buildProblemsTableData = function (problems) {
     var row = Titanium.UI.createTableViewRow({
       height: 'auto',
       leftImage: P.config.hostname + problem.photo_small,
-      //layout: "vertical",
       className: 'problem',
       backgroundColor: "#1B1C1E"
     });

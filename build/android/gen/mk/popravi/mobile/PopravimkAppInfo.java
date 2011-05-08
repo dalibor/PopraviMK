@@ -20,7 +20,7 @@ public final class PopravimkAppInfo implements ITiAppInfo
 					
 					properties.setString("ti.android.google.map.api.key.development", "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg");
 					
-					properties.setString("ti.deploytype", "test");
+					properties.setString("ti.deploytype", "development");
 	}
 	
 	public String getId() {

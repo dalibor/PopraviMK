@@ -2,7 +2,7 @@
 
   * PopraviMK is an Android Mobile application (build with Titanium Mobile) that allows people to help in detecting urban problems they have found on public area in Macedonia
   * Web service is located at http://popravi.mk and exists as an independent web application (built with Ruby on Rails web framework)
-  * PopraviMK application is winner of the first Android Vip contest in Macedonia (2010): http://android.vip.mk/winners
+  * PopraviMK application is winner of the first Android contest in Macedonia (2010) organized by Vip mobile operator: http://android.vip.mk/winners
 
 == Development notes
 

@@ -174,3 +174,32 @@ P.UI.getCommentsRowData = function (comment) {
 
   return row;
 };
+
+
+P.UI.syncProblems = function (callback) {
+  var syncAlert = Titanium.UI.createAlertDialog({
+    title: 'Пријавување на проблеми',
+    message: 'Дали сакате да ги пријавите сите проблеми?',
+    buttonNames: ['Да', 'Не']
+  });
+  syncAlert.addEventListener("click", function (e) {
+    if (e.index == 0) {
+      P.db.syncProblems(callback);
+    }
+  });
+  syncAlert.show();
+};
+
+P.UI.problemErrorCallback = function (json) {
+  var message;
+
+  if (json.type === "photo") {
+    message = "Сликата не е во валиден формат.";
+  } else if (json.type === "token") {
+    message = "Не можете да додадете слика бидејќи е испратен невалиден токен.";
+  } else {
+    message = "Се појави технички проблем при испраќање на сликата.";
+  }
+
+  P.UI.flash(message);
+};

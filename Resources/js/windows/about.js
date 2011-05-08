@@ -33,13 +33,13 @@ var vipLabel = Ti.UI.createLabel({
   color: '#EEE',
   font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
   text: [
-    "Верзија 1.0 од PopraviMK беше објавена на првиот Андроид предизвик во Македонија (2010) организиран од мобилниот оператор Vip и освои прво место.",
+    "Верзијата 1.0 од PopraviMK освои прво место на Андроид предизвикот организиран од мобилниот оператор Vip (2010).",
   ].join("\n\n")
 });
 var vipLogo = Titanium.UI.createImageView({
   top: 10,
   image: '../../images/promo/vip.png',
-  width: 180, height: 142
+  width: 164, height: 39
 });
 scrollView.add(vipLabel);
 scrollView.add(vipLogo);
@@ -51,16 +51,15 @@ var mmLabel = Ti.UI.createLabel({
   color: '#EEE',
   font: {fontFamily: 'Helvetica Neue', fontSize: 14, fontWeight: 'normal'},
   text: [
-    "Верзија 2.0 од PopraviMK e направена и објавена во соработка со фондацијата Metamorfozis. Целта на оваа верзија е активно вклучување на општините во решавање на проблемите.",
+    "Верзијата 2.0 од PopraviMK e подржана од Фондацијата Метаморфозис.",
   ].join("\n\n")
 });
 var mmLogo = Titanium.UI.createImageView({
   top: 10,
   image: '../../images/promo/mm.png',
-  width: 250, height: 41
+  width: 164, height: 39
 });
 scrollView.add(mmLabel);
 scrollView.add(mmLogo);
 
 win.add(scrollView);
-

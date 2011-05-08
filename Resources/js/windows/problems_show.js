@@ -7,10 +7,22 @@ var selectedStatusRowIndex;
 var STATUSES = [
   ['reported', 'пријавен'], 
   ['approved', 'одобрен'], 
-  ['activated', 'активен'], 
+  ['activated', 'во изработка'], 
   ['solved', 'поправен'], 
   ['invalid', 'невалиден']
 ];
+
+var getStatus = function (status) {
+  Ti.API.info('get status')
+  for (var i = 0; i < STATUSES.length; i++) {
+    if (STATUSES[i][0] === status) {
+      status = STATUSES[i][1];
+      break;
+    }
+  }
+
+  return status;
+}
 
 
 var scrollView = Ti.UI.createScrollView({
@@ -116,7 +128,7 @@ var scrollView = Ti.UI.createScrollView({
       var statusValueLabel = Ti.UI.createLabel({
         top: 5, left: 70,
         width: 150, height: 50,
-        text: problem.status,
+        text: getStatus(problem.status),
         color: '#FFF',
         font: {fontSize: 15, fontWeight: 'bold'}
       });
