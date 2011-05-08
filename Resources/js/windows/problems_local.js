@@ -19,17 +19,22 @@ var buildProblemsTableData = function () {
     var params = P.db.getProblemParams(dbProblems);
 
     if (params.imagePath !== 'undefined') {
-      var leftImage = params.imagePath;
+      var imagePath = params.imagePath;
     } else {
-      var leftImage = '../../images/icons/camera.png';
+      var imagePath = '../../images/icons/camera.png';
     }
 
     var row = Titanium.UI.createTableViewRow({
       height: 'auto',
-      leftImage: leftImage,
       className: 'problem',
       backgroundColor: "#1B1C1E"
     });
+
+    var leftImage = Ti.UI.createImageView({
+      left: 5, top: 5,
+      height: 48, width: 48,
+      url: imagePath
+    })
 
     var municipalityLabel = Ti.UI.createLabel({
       top: 5, left: 70,
@@ -143,6 +148,7 @@ var buildProblemsTableData = function () {
     // BUTTONS END
 
 
+    row.add(leftImage);
     row.add(municipalityLabel);
     row.add(categoryLabel);
     row.add(descriptionLabel);
