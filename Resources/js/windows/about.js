@@ -39,7 +39,7 @@ var vipLabel = Ti.UI.createLabel({
 var vipLogo = Titanium.UI.createImageView({
   top: 10,
   image: '../../images/promo/vip.png',
-  width: 164, height: 39
+  width: 200, height: 48
 });
 scrollView.add(vipLabel);
 scrollView.add(vipLogo);
@@ -57,7 +57,7 @@ var mmLabel = Ti.UI.createLabel({
 var mmLogo = Titanium.UI.createImageView({
   top: 10,
   image: '../../images/promo/mm.png',
-  width: 164, height: 39
+  width: 200, height: 53
 });
 scrollView.add(mmLabel);
 scrollView.add(mmLogo);

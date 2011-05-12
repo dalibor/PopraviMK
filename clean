@@ -2,6 +2,7 @@
 
 # Remove android build folder 
 rm -rf build/android/bin
+rm -rf build/android/gen
 rm -rf build/android/assets
 rm -rf build/android/res
 rm -rf build/android/src

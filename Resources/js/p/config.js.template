@@ -1,0 +1,30 @@
+P.config = {};
+
+// production environment
+//P.config.hostname = 'http://popravi.mk';
+//P.config.virtualDevice = false;
+//P.config.api_key = '';
+
+// staging (real device) environment
+P.config.hostname = 'http://staging.popravi.mk';
+P.config.virtualDevice = false;
+P.config.api_key = 'staging';
+
+// staging (virtual device) environment
+//P.config.hostname = 'http://staging.popravi.mk';
+//P.config.virtualDevice = true;
+//P.config.api_key = 'staging';
+
+// development (real device) environment
+//P.config.hostname = 'http://192.168.1.101:3000';
+//P.config.virtualDevice = false;
+//P.config.api_key = 'development';
+
+// development (virtual device) environment
+//P.config.hostname = 'http://192.168.1.101:3000';
+//P.config.virtualDevice = true;
+//P.config.api_key = 'development';
+
+
+// set appropriate api endpoint here
+P.config.apiEndpoint = P.config.hostname + '/api/v2';

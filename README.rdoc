@@ -1,12 +1,16 @@
 == PopraviMK
 
-  * PopraviMK is an Android Mobile application (build with Titanium Mobile) that allows people to help in detecting urban problems they have found on public area in Macedonia
+  * PopraviMK is an Android Mobile application (build with Titanium Mobile) that allows people to help in detecting urban problems they have found on public area
   * Web service is located at http://popravi.mk and exists as an independent web application (built with Ruby on Rails web framework)
   * PopraviMK application is winner of the first Android contest in Macedonia (2010) organized by Vip mobile operator: http://android.vip.mk/winners
 
 == Development notes
 
-  * Environment settings (Resources/js/p/config.js)
+  * Setup environment settings
+    cp Resources/js/p/config.js.template Resources/js/p/config.js
+
+  * Setup tiapp.xml settings
+    cp tiapp.xml.template tiapp.xml
 
   * Google maps api key settings (tiapp.xml)
 
@@ -15,10 +19,7 @@
 
 == License
 
-  * PopraviMK application is licensed under the GNU GENERAL PUBLIC LICENSE Version 2, see LICENSE.txt
-  * Appcelerator Titanium and the associated tools and libraries are licensed under the Apache 2.0 OSS license, see LICENSE
-
-== Copyright
+  GNU GENERAL PUBLIC LICENSE Version 2, see LICENSE.txt
 
   Copyright (C) 2011 Dalibor Nasevic <dalibor.nasevic@gmail.com>
 
