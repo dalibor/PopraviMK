@@ -1,5 +1,5 @@
 P.db = {};
-P.db.connection = Titanium.Database.install('../../db/popravi.sqlite', 'popravi2');
+P.db.connection = Titanium.Database.install('../../db/popravi.sqlite', 'popravi3');
 
 P.db.categories = function () {
   var categories = [];
@@ -8,7 +8,7 @@ P.db.categories = function () {
 
   while (dbCategories.isValidRow()) {
     categories.push({
-      title: dbCategories.fieldByName('name'), 
+      title: dbCategories.fieldByName('name'),
       id: dbCategories.fieldByName('web_id')
     });
     dbCategories.next();
@@ -26,7 +26,7 @@ P.db.municipalities = function () {
 
   while (dbMunicipalities.isValidRow()) {
     municipalities.push({
-      title: dbMunicipalities.fieldByName('name'), 
+      title: dbMunicipalities.fieldByName('name'),
       id: dbMunicipalities.fieldByName('web_id')
     });
     dbMunicipalities.next();
@@ -89,7 +89,7 @@ P.db.getProblemParams = function (dbProblems) {
     longitude: dbProblems.fieldByName('longitude'),
     email: dbProblems.fieldByName('email'),
     imagePath: imagePath,
-    image: image, 
+    image: image,
     problemId: dbProblems.fieldByName('id'),
     token: String(Math.floor(Math.random() * 123456789))
   };
@@ -111,7 +111,7 @@ P.db.syncProblems = function (callback) {
     value: 0
   });
 
-  var successCallback = function (params) { 
+  var successCallback = function (params) {
     P.db.deleteProblem(params.problemId); // remove the sent problem
 
     var currentTotal = Number(P.db.countLocalProblems());
@@ -251,8 +251,8 @@ P.db.problemErrorHandler = function (actions, refreshPickersCallback) {
   }
 
   var syncAlert = Titanium.UI.createAlertDialog({
-    title: 'Синхронизација', 
-    message: 'Потребно е да направите синхронизација со серверот за да ја превземете изменетата листа на ' + messageSync.join(" и ") + '. Дали сакате синхронизацијата да започне?', 
+    title: 'Синхронизација',
+    message: 'Потребно е да направите синхронизација со серверот за да ја превземете изменетата листа на ' + messageSync.join(" и ") + '. Дали сакате синхронизацијата да започне?',
     buttonNames: ['Да', 'Не']
   });
 
